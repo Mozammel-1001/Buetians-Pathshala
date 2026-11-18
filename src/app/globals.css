@@ -1,0 +1,143 @@
+@import "tailwindcss";
+
+/* dark: <html class="dark">। ডিফল্ট light, থিম বোতামে বদলায় */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ডেমো সাইটের রং আর মাপ (index.html এর tailwind.config থেকে)। light এর পটভূমি off-white, আর পাশের
+   container গুলোও একই উষ্ণ ধূসর ঘরানায়, যাতে সাদা card আলাদা করে চোখে পড়ে */
+@theme {
+  --font-sans: var(--font-hind), "Hind Siliguri", sans-serif;
+
+  --color-primary: #006c49;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #10b981;
+  --color-on-primary-container: #00422b;
+  --color-primary-fixed: #6ffbbe;
+  --color-primary-fixed-dim: #4edea3;
+  --color-on-primary-fixed: #002113;
+  --color-on-primary-fixed-variant: #005236;
+  --color-inverse-primary: #4edea3;
+  --color-secondary: #565e74;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #dae2fd;
+  --color-on-secondary-container: #5c647a;
+  --color-tertiary: #a43a3a;
+  --color-tertiary-container: #fc7c78;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-background: #faf9f6;
+  --color-on-background: #0b1c30;
+  --color-surface: #faf9f6;
+  --color-on-surface: #0b1c30;
+  --color-surface-variant: #d3e4fe;
+  --color-on-surface-variant: #3c4a42;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f4f2ec;
+  --color-surface-container: #eeebe4;
+  --color-surface-container-high: #e8e4dc;
+  --color-surface-container-highest: #e2ded5;
+  --color-inverse-surface: #213145;
+  --color-inverse-on-surface: #eaf1ff;
+  --color-outline: #6c7a71;
+  --color-outline-variant: #bbcabf;
+
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 32px;
+  --spacing-gutter: 24px;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-on-background antialiased dark:bg-on-background dark:text-background;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary dark:outline-primary-fixed;
+  }
+}
+
+/* সাইটের নিজের class (utility হিসেবে, তাই !rounded-full এর মতো বদলানো যায়) */
+@utility card {
+  @apply rounded-3xl border border-outline-variant/30 bg-surface-container-lowest shadow-sm dark:border-outline-variant/10 dark:bg-inverse-surface;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-primary text-on-primary hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,108,73,0.3)];
+}
+@utility btn-ghost {
+  @apply btn border border-outline-variant/40 text-on-surface-variant hover:border-primary hover:text-primary dark:text-surface-variant dark:hover:text-primary-fixed;
+}
+@utility field {
+  @apply w-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3.5 py-2.5 text-sm text-on-background outline-none transition-colors focus:border-primary dark:border-outline-variant/20 dark:bg-on-background/40 dark:text-background dark:focus:border-primary-fixed;
+  &[aria-invalid="true"] {
+    @apply border-error ring-3 ring-error/15;
+  }
+}
+@utility label {
+  @apply mb-1.5 block text-xs font-bold text-on-surface-variant dark:text-surface-variant;
+}
+@utility muted {
+  @apply text-on-surface-variant dark:text-surface-variant;
+}
+
+/* আইকন: Google এর Material Symbols ফন্ট, কিন্তু নিজের class (components layer এ), তাই text-[18px], hidden
+   ইত্যাদি utility কাজ করে (Google এর .material-symbols-outlined layer এর বাইরে থাকে বলে সবকিছু ছাপিয়ে যায়) */
+@layer components {
+  .icon {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    user-select: none;
+  }
+}
+
+/* ---------- ছোট animation (স্বাগত বার্তা, ভর্তির modal) ---------- */
+@keyframes pop-in {
+  0% { opacity: 0; transform: translateY(16px) scale(0.94); }
+  60% { opacity: 1; transform: translateY(-2px) scale(1.01); }
+  100% { transform: none; }
+}
+@keyframes check-draw { to { stroke-dashoffset: 0; } }
+@keyframes confetti-fall {
+  0% { transform: translateY(-10vh) rotate(0); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0.6; }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+@layer components {
+  .pop-in { animation: pop-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+  .check-draw { stroke-dasharray: 40; stroke-dashoffset: 40; animation: check-draw 0.5s 0.25s ease-out forwards; }
+  .confetti { position: absolute; top: 0; animation-name: confetti-fall; animation-timing-function: linear; animation-fill-mode: both; }
+  .shake { animation: shake 0.45s ease-in-out; }
+  dialog[open] { animation: pop-in 0.3s ease-out; }
+  dialog::backdrop { animation: fade-in 0.2s ease-out; }
+}
+@keyframes fade-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .pop-in, .check-draw, .confetti, .shake, dialog[open] { animation: none !important; }
+  .check-draw { stroke-dashoffset: 0; }
+  .confetti { display: none; }
+}
