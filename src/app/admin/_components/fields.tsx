@@ -115,7 +115,12 @@ export function MediaInput({ label, value, onChange, folder, kind = "image", max
 }
 
 // ---------- তালিকা ----------
-export type ItemField<T> = { key: keyof T & string; label: string; multiline?: boolean; placeholder?: string; icon?: boolean; wide?: boolean };
+export type ItemField<T> = {
+  key: keyof T & string; label: string; multiline?: boolean; placeholder?: string; icon?: boolean; wide?: boolean;
+  options?: Record<string, string>;            // বাছাইয়ের তালিকা (select)
+  image?: { folder: string; aspect?: string }; // ছবি আপলোড
+  showIf?: (item: T) => boolean;               // অন্য ঘরের মান অনুযায়ী দেখানো (যেমন শুধু "ছবির উপর লেখা" কার্ডে ছবি)
+};
 
 export function ListEditor<T extends Record<string, string>>({ items, onChange, fields, blank, addLabel, max = 50, emptyText }: {
   items: T[]; onChange: (items: T[]) => void; fields: ItemField<T>[]; blank: T; addLabel: string; max?: number; emptyText?: string;
@@ -134,17 +139,27 @@ export function ListEditor<T extends Record<string, string>>({ items, onChange, 
       {items.map((it, i) => (
         <div key={i} className="flex gap-2 rounded-2xl border border-outline-variant/40 p-3 dark:border-outline-variant/20">
           <div className="grid flex-1 gap-2 sm:grid-cols-2">
-            {fields.map((f) => (
-              <div key={f.key} className={f.wide || f.multiline ? "sm:col-span-2" : ""}>
+            {fields.filter((f) => !f.showIf || f.showIf(it)).map((f) => (
+              <div key={f.key} className={f.wide || f.multiline || f.image ? "sm:col-span-2" : ""}>
+                {f.image ? (
+                  <MediaInput label={f.label} value={it[f.key]} onChange={(v) => set(i, { [f.key]: v } as Partial<T>)} folder={f.image.folder} aspect={f.image.aspect} />
+                ) : (
+                <>
                 <label className="sr-only">{f.label}</label>
                 <div className="flex items-center gap-2">
                   {f.icon && <span className="icon text-primary dark:text-primary-fixed" aria-hidden="true">{it[f.key] || "help"}</span>}
-                  {f.multiline ? (
+                  {f.options ? (
+                    <select value={it[f.key]} aria-label={f.label} className="field" onChange={(e) => set(i, { [f.key]: e.target.value } as Partial<T>)}>
+                      {Object.entries(f.options).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+                    </select>
+                  ) : f.multiline ? (
                     <textarea value={it[f.key]} rows={2} placeholder={f.placeholder ?? f.label} aria-label={f.label} className="field resize-y" onChange={(e) => set(i, { [f.key]: e.target.value } as Partial<T>)} />
                   ) : (
                     <input value={it[f.key]} placeholder={f.placeholder ?? f.label} aria-label={f.label} className="field" onChange={(e) => set(i, { [f.key]: e.target.value } as Partial<T>)} />
                   )}
                 </div>
+                </>
+                )}
               </div>
             ))}
           </div>

@@ -3,8 +3,9 @@
 /* dark: <html class="dark">। ডিফল্ট light, থিম বোতামে বদলায় */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ডেমো সাইটের রং আর মাপ (index.html এর tailwind.config থেকে)। light এর পটভূমি off-white, আর পাশের
-   container গুলোও একই উষ্ণ ধূসর ঘরানায়, যাতে সাদা card আলাদা করে চোখে পড়ে */
+/* ডেমো সাইটের রং আর মাপ (index.html এর tailwind.config থেকে)। light এর পটভূমি off-white (খাঁটি সাদা নয়),
+   card আর পাশের container গুলোও একই উষ্ণ ঘরানায়। ডেমোর sm/md/lg/xl spacing নাম এখানে নেই: Tailwind 4 এ
+   max-w-md ইত্যাদি আগে spacing খোঁজে, তাই সেই নাম দিলে ভেঙে যায়; মাপগুলো সমান সংখ্যায় লেখা (xl 80px = 20) */
 @theme {
   --font-sans: var(--font-hind), "Hind Siliguri", sans-serif;
 
@@ -23,21 +24,26 @@
   --color-on-secondary-container: #5c647a;
   --color-tertiary: #a43a3a;
   --color-tertiary-container: #fc7c78;
+  --color-tertiary-fixed-dim: #ffb3af;
   --color-error: #ba1a1a;
   --color-on-error: #ffffff;
   --color-error-container: #ffdad6;
   --color-on-error-container: #93000a;
-  --color-background: #faf9f6;
+  --color-secondary-fixed: #dae2fd;
+  --color-secondary-fixed-dim: #bec6e0;
+  --color-on-secondary-fixed: #131b2e;
+  --color-surface-tint: #006c49;
+  --color-background: #efece5;
   --color-on-background: #0b1c30;
-  --color-surface: #faf9f6;
+  --color-surface: #efece5;
   --color-on-surface: #0b1c30;
   --color-surface-variant: #d3e4fe;
   --color-on-surface-variant: #3c4a42;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f4f2ec;
-  --color-surface-container: #eeebe4;
-  --color-surface-container-high: #e8e4dc;
-  --color-surface-container-highest: #e2ded5;
+  --color-surface-container-lowest: #fffdf9;
+  --color-surface-container-low: #e6e1d7;
+  --color-surface-container: #e2ddd3;
+  --color-surface-container-high: #dbd6cb;
+  --color-surface-container-highest: #d4cec2;
   --color-inverse-surface: #213145;
   --color-inverse-on-surface: #eaf1ff;
   --color-outline: #6c7a71;
@@ -46,6 +52,47 @@
   --spacing-margin-mobile: 16px;
   --spacing-margin-desktop: 32px;
   --spacing-gutter: 24px;
+
+  /* ডেমোর লেখার মাপ */
+  --text-headline-xl: 48px;
+  --text-headline-xl--line-height: 56px;
+  --text-headline-xl--letter-spacing: -0.02em;
+  --text-headline-xl--font-weight: 800;
+  --text-headline-lg: 36px;
+  --text-headline-lg--line-height: 44px;
+  --text-headline-lg--letter-spacing: -0.01em;
+  --text-headline-lg--font-weight: 800;
+  --text-headline-lg-mobile: 28px;
+  --text-headline-lg-mobile--line-height: 36px;
+  --text-headline-lg-mobile--letter-spacing: -0.01em;
+  --text-headline-lg-mobile--font-weight: 800;
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--font-weight: 800;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg--font-weight: 500;
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-label-md: 14px;
+  --text-label-md--line-height: 20px;
+  --text-label-md--letter-spacing: 0.05em;
+  --text-label-md--font-weight: 500;
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--font-weight: 600;
+
+  /* ডেমোর animation */
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+  }
 }
 
 @layer base {
@@ -140,4 +187,269 @@
   .pop-in, .check-draw, .confetti, .shake, dialog[open] { animation: none !important; }
   .check-draw { stroke-dashoffset: 0; }
   .confetti { display: none; }
+}
+
+/* ---------- হোমপেজের নড়াচড়া (index.html এর <style> থেকে হুবহু) ----------
+   কোনো @layer এর ভেতরে নয়, ডেমোর মতোই: তাই card এর shadow-sm এর উপরেও hover এর সবুজ আভা জেতে */
+  /* স্ক্রলে নিচ থেকে ভেসে ওঠা; দৃশ্যের বাইরে গেলে আবার লুকায় (components/motion-effects.tsx) */
+  .reveal {
+    opacity: 0;
+    transform: translateY(80px);
+    transition: opacity 1.5s cubic-bezier(0.22, 1, 0.36, 1), transform 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal.active { opacity: 1; transform: translateY(0); }
+
+  /* মাউসের পেছনে হালকা আলো */
+  #mouse-glow {
+    position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1;
+    background: radial-gradient(600px circle at var(--x, 50%) var(--y, 50%), rgba(0, 108, 73, 0.05), transparent 20%);
+    transition: background 0.2s ease;
+  }
+  .dark #mouse-glow { background: radial-gradient(600px circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.03), transparent 40%); }
+
+  /* মাউসের দিকে হেলে পড়া card */
+  .tilt-card {
+    position: relative; z-index: 1;
+    transition: box-shadow 0.8s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.8s ease, transform 0.4s ease-out !important;
+    transform-style: preserve-3d; will-change: transform;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 0 0 0 rgba(0, 108, 73, 0);
+  }
+  .tilt-card:hover {
+    border-color: rgba(0, 108, 73, 0.4) !important;
+    box-shadow: 0 20px 40px -10px rgba(0, 108, 73, 0.3), 0 0 25px rgba(0, 108, 73, 0.15);
+    z-index: 10;
+  }
+  .dark .tilt-card { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(111, 251, 190, 0); }
+  .dark .tilt-card:hover {
+    border-color: rgba(111, 251, 190, 0.3) !important;
+    box-shadow: 0 20px 40px -10px rgba(111, 251, 190, 0.25), 0 0 25px rgba(111, 251, 190, 0.1);
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .tilt-card:active, .tilt-card.mobile-pressed {
+      transform: scale(0.98) !important;
+      box-shadow: 0 10px 20px -5px rgba(0, 108, 73, 0.3) !important;
+      border-color: rgba(0, 108, 73, 0.5) !important;
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out !important;
+    }
+    .dark .tilt-card:active, .dark .tilt-card.mobile-pressed {
+      box-shadow: 0 10px 20px -5px rgba(111, 251, 190, 0.25) !important;
+      border-color: rgba(111, 251, 190, 0.4) !important;
+    }
+  }
+
+  .border-3d {
+    border-bottom-width: 6px !important; border-right-width: 6px !important;
+    border-bottom-color: rgba(0, 108, 73, 0.3) !important; border-right-color: rgba(0, 108, 73, 0.15) !important;
+  }
+  .dark .border-3d { border-bottom-color: rgba(111, 251, 190, 0.3) !important; border-right-color: rgba(111, 251, 190, 0.15) !important; }
+
+  .card-float { animation: card-float-anim 3s ease-in-out infinite; }
+
+  /* লাইন ধরে নিচ থেকে উঠে আসা লেখা */
+  .kinetic-text { overflow: hidden; display: inline-block; vertical-align: top; padding: 0.2em 0; margin: -0.2em 0; }
+  .kinetic-text > span { display: inline-block; transform: translateY(100%); opacity: 0; }
+  .reveal.active .kinetic-text > span { animation: revealUp 1s cubic-bezier(0.77, 0, 0.175, 1) forwards; }
+
+@keyframes card-float-anim {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+@keyframes revealUp {
+  0% { transform: translateY(100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none; opacity: 1; transform: translateY(0); }
+  .kinetic-text > span { transform: none; opacity: 1; }
+  .animate-float, .animate-pulse-glow, .animate-pulse, .card-float { animation: none !important; }
+}
+
+/* ---------- লগইন / সাইন আপ / পাসওয়ার্ড রিসেট পাতা (sign_in.html এর CSS) ----------
+   ডেমোর ক্লাস আর মান হুবহু; শুধু সাদা (#fff) জায়গায় সাইটের কার্ডের প্রায়-সাদা (#fffdf9) আর নীলচে ধূসর জায়গায় সাইটের উষ্ণ ধূসর */
+:root {
+  --form-primary: #006c49;
+  --form-primary-hover: #005236;
+  --form-accent: #10b981;
+}
+.login-page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100dvh - 64px);   /* header এর নিচের পুরো পর্দা */
+  padding: 40px 20px;
+}
+@media (min-width: 768px) { .login-page-wrapper { min-height: calc(100dvh - 72px); } }
+.login-container {
+  display: flex;
+  width: 100%;
+  max-width: 1000px;
+  background: #fffdf9;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+.login-left {
+  flex: 1;
+  background: linear-gradient(135deg, #00422b, var(--form-primary));
+  color: white;
+  padding: 60px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.login-left h2 { font-size: 2rem; margin-bottom: 15px; font-weight: 800; }
+.login-left p { font-size: 1rem; line-height: 1.6; color: #dce9ff; margin-bottom: 30px; }
+.login-left img { height: 80px; width: auto; margin: 0 auto 16px; object-fit: contain; }
+.login-right { flex: 1.2; padding: 60px 50px; display: flex; justify-content: center; align-items: center; }
+.login-form-box { width: 100%; max-width: 420px; animation: authFadeIn 0.4s ease; }
+.login-form-box h2 { font-size: 1.8rem; color: #0b1c30; margin-bottom: 5px; font-weight: 800; }
+.subtitle { color: #5c647a; margin-bottom: 30px; font-size: 0.95rem; }
+.input-group { margin-bottom: 20px; }
+.input-row { display: flex; gap: 15px; }
+.input-row .input-group { flex: 1; min-width: 0; }
+.input-group label { display: block; font-size: 0.9rem; color: #3c4a42; margin-bottom: 8px; font-weight: 600; }
+.input-group input,
+.input-group select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #bbcabf;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  outline: none;
+  background: #fffdf9;
+  color: #0b1c30;
+  font-family: inherit;
+}
+.input-group input:focus,
+.input-group select:focus { border-color: var(--form-primary); box-shadow: 0 0 0 3px rgba(0, 108, 73, 0.1); }
+.password-wrapper { position: relative; }
+.password-wrapper input { padding-right: 46px; }
+.eye-btn {
+  position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: #6c7a71; cursor: pointer; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.eye-btn:hover { color: var(--form-primary); }
+.eye-btn svg { width: 20px; height: 20px; }
+.login-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; font-size: 0.9rem; gap: 12px; }
+.remember-me { display: flex; align-items: center; gap: 8px; color: #3c4a42; cursor: pointer; }
+.forgot-password { color: var(--form-primary); text-decoration: none; font-weight: 600; background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; font-size: inherit; }
+.forgot-password:hover { text-decoration: underline; }
+.login-submit-btn {
+  width: 100%; padding: 14px; font-size: 1.05rem; border-radius: 8px;
+  background-color: var(--form-primary); color: white; border: none; cursor: pointer; font-weight: 600;
+  transition: all 0.3s; font-family: inherit;
+}
+.login-submit-btn:hover:not(:disabled) { background-color: var(--form-primary-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 108, 73, 0.2); }
+.login-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.divider { display: flex; align-items: center; text-align: center; margin: 25px 0; color: #6c7a71; font-size: 0.85rem; }
+.divider::before, .divider::after { content: ""; flex: 1; border-bottom: 1px solid #ddd8ce; }
+.divider span { padding: 0 10px; }
+.btn-social {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px;
+  border: 1px solid #bbcabf; border-radius: 8px; background: #fffdf9; font-size: 0.95rem; font-weight: 600;
+  color: #0b1c30; cursor: pointer; transition: background 0.3s; font-family: inherit;
+}
+.btn-social:hover { background: #f4f2ec; }
+.signup-link { text-align: center; margin-top: 25px; font-size: 0.95rem; color: #5c647a; }
+.signup-link a, .signup-link button { color: var(--form-primary); font-weight: 700; text-decoration: none; background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; font-size: inherit; }
+.signup-link a:hover, .signup-link button:hover { text-decoration: underline; }
+.step-indicator { margin-bottom: 25px; }
+.step-indicator span { font-size: 0.9rem; color: #5c647a; font-weight: 600; display: block; margin-bottom: 8px; }
+.progress-bar { width: 100%; height: 6px; background: #e2ddd3; border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--form-accent); transition: width 0.4s ease; }
+.form-actions-row { display: flex; gap: 15px; margin-top: 10px; }
+.btn-back {
+  flex: 1; background-color: #f4f2ec; color: #3c4a42; border: 1px solid #bbcabf; padding: 14px; font-size: 1.05rem;
+  font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-family: inherit;
+}
+.btn-back:hover:not(:disabled) { background-color: #e9e5dd; color: #0b1c30; }
+.input-group .error-text { display: none; color: #ba1a1a; font-size: 0.85rem; margin-top: 6px; }
+.input-group.has-error input, .input-group.has-error select { border-color: #ba1a1a !important; background-color: #ffdad6; }
+.input-group.has-error .error-text { display: block; }
+/* ফর্মের উপরের সাধারণ ভুল/খবর (ডেমোতে নেই, নতুন) */
+.form-alert { border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; margin-bottom: 18px; font-weight: 600; }
+.form-alert.error { background: #ffdad6; color: #93000a; }
+.form-alert.warn { background: #fef3c7; color: #92400e; }
+/* OTP এর ঘরের নিচে: লেখা, ৩ মিনিটের ঘড়ি আর আবার পাঠানোর বোতাম (নতুন) */
+.otp-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; margin: -8px 0 22px; font-size: 0.9rem; color: #3c4a42; }
+.otp-meta .otp-side { display: flex; align-items: center; gap: 12px; }
+.otp-timer { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--form-primary); background: rgba(0, 108, 73, 0.08); border-radius: 999px; padding: 3px 12px; min-width: 64px; text-align: center; }
+.otp-resend { color: var(--form-primary); font-weight: 700; background: none; border: none; padding: 0; cursor: pointer; font-family: inherit; font-size: inherit; }
+.otp-resend:hover:not(:disabled) { text-decoration: underline; }
+.otp-resend:disabled { color: #6c7a71; opacity: 0.6; cursor: not-allowed; }
+
+/* dark */
+.dark .login-container { background-color: #213145; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4); }
+.dark .login-form-box h2 { color: #f8f9ff; }
+.dark .subtitle { color: #cbdbf5; }
+.dark .input-group label { color: #d3e4fe; }
+.dark .input-group input, .dark .input-group select { background-color: #131b2e; border-color: #3f465c; color: #ffffff; }
+.dark .input-group input:focus, .dark .input-group select:focus { border-color: #4edea3; box-shadow: 0 0 0 3px rgba(78, 222, 163, 0.15); }
+.dark .remember-me { color: #d3e4fe; }
+.dark .forgot-password { color: #4edea3; }
+.dark .login-submit-btn { background-color: #4edea3; color: #002113; }
+.dark .login-submit-btn:hover:not(:disabled) { background-color: #6ffbbe; box-shadow: 0 4px 12px rgba(111, 251, 190, 0.2); }
+.dark .divider::before, .dark .divider::after { border-bottom-color: #3f465c; }
+.dark .btn-social { background-color: #131b2e; border-color: #3f465c; color: #f8f9ff; }
+.dark .btn-social:hover { background-color: #3f465c; }
+.dark .signup-link { color: #cbdbf5; }
+.dark .signup-link a, .dark .signup-link button { color: #4edea3; }
+.dark .btn-back { background-color: #131b2e; border-color: #3f465c; color: #d3e4fe; }
+.dark .btn-back:hover:not(:disabled) { background-color: #3f465c; }
+.dark .progress-bar { background-color: #3f465c; }
+.dark .form-alert.error { background: rgba(186, 26, 26, 0.25); color: #ffdad6; }
+.dark .form-alert.warn { background: rgba(251, 191, 36, 0.15); color: #fde68a; }
+.dark .otp-meta { color: #d3e4fe; }
+.dark .otp-timer { color: #4edea3; background: rgba(78, 222, 163, 0.12); }
+.dark .otp-resend { color: #4edea3; }
+.dark .eye-btn:hover { color: #4edea3; }
+
+/* মোবাইলে সব ফাঁক laptop এর অর্ধেক (পুরো সাইটের নিয়ম) */
+@media (max-width: 768px) {
+  .login-page-wrapper { padding: 20px 16px; }
+  .login-container { flex-direction: column; }
+  .login-left { padding: 30px 20px; }
+  .login-right { padding: 30px 20px; }
+  .login-left h2 { margin-bottom: 8px; }
+  .login-left p { margin-bottom: 15px; }
+  .login-left img { margin-bottom: 8px; }
+  .login-form-box h2 { margin-bottom: 3px; }
+  .subtitle { margin-bottom: 15px; }
+  .input-group { margin-bottom: 10px; }
+  .input-row { flex-direction: column; gap: 0; }
+  .login-actions { margin-bottom: 12px; }
+  .divider { margin: 12px 0; }
+  .signup-link { margin-top: 12px; }
+  .step-indicator { margin-bottom: 12px; }
+  .form-actions-row { gap: 8px; margin-top: 5px; }
+  .form-alert { margin-bottom: 9px; }
+  .otp-meta { margin: -4px 0 11px; }
+}
+@keyframes authFadeIn {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) { .login-form-box { animation: none; } }
+
+/* সব কোর্সের পাতার (courses.html) টিক-বাক্স আর "দেখান" বাছাই: ডেমো Tailwind এর forms plugin দিয়ে সাজিয়েছিল, এখানে হাতে */
+.filter-check {
+  appearance: none; -webkit-appearance: none; flex-shrink: 0; width: 1rem; height: 1rem; margin: 0; cursor: pointer;
+  border: 1px solid rgba(188, 202, 192, 0.7); border-radius: 0.25rem; background-color: var(--color-background); color: var(--color-primary);
+  background-repeat: no-repeat; background-position: center; background-size: 100% 100%;
+}
+.filter-check:checked {
+  border-color: transparent; background-color: currentColor;
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+}
+.filter-check:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.dark .filter-check { color: var(--color-primary-fixed); background-color: var(--color-on-background); border-color: rgba(134, 148, 138, 0.5); }
+.cf-select {
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em;
 }

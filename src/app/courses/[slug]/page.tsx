@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps<"/courses/[slug]">)
 
 export default function CoursePage({ params }: PageProps<"/courses/[slug]">) {
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10 md:px-8">
+    <main className="mx-auto max-w-6xl px-4 py-5 md:px-8 md:py-10">
       <Suspense fallback={<div className="card h-96 animate-pulse" />}>
         {params.then(({ slug }) => <CourseDetails slug={slug} />)}
       </Suspense>
@@ -30,9 +30,9 @@ async function CourseDetails({ slug }: { slug: string }) {
 
   return (
     <>
-      <nav className="mb-4 text-sm muted"><Link href="/#courses" className="hover:text-primary">কোর্সসমূহ</Link> / {c.title}</nav>
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="min-w-0 space-y-8">
+      <nav className="mb-2 text-sm muted md:mb-4"><Link href="/#courses" className="hover:text-primary">কোর্সসমূহ</Link> / {c.title}</nav>
+      <div className="grid gap-4 md:gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="min-w-0 space-y-4 md:space-y-8">
           <header>
             {c.batch_name && <p className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary dark:text-primary-fixed">{c.batch_name}</p>}
             <h1 className="mt-3 text-3xl font-bold leading-tight md:text-5xl">{c.title}</h1>

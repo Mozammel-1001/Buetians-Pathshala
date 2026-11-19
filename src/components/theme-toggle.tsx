@@ -1,6 +1,6 @@
 "use client";
 
-// dark/light: <html> এর class বদল, পছন্দ এই ব্রাউজারে মনে রাখা
+// dark/light: <html> এর class বদল, পছন্দ এই ব্রাউজারে মনে রাখা (ডেমোর বোতামের মতো দেখতে)
 export function ThemeToggle() {
   const toggle = () => {
     const dark = document.documentElement.classList.toggle("dark");
@@ -11,9 +11,10 @@ export function ThemeToggle() {
     }
   };
   return (
-    <button type="button" onClick={toggle} aria-label="থিম বদলান" className="grid h-10 w-10 place-items-center rounded-full muted hover:bg-surface-container-low dark:hover:bg-white/10">
+    <button type="button" onClick={toggle} aria-label="থিম বদলান"
+      className="flex items-center justify-center rounded-full p-2 text-on-surface-variant transition-all duration-300 hover:bg-surface-container-low md:hover:scale-110 dark:text-surface-variant dark:hover:bg-inverse-surface">
       <span className="icon dark:hidden">light_mode</span>
-      <span className="icon hidden dark:inline-block">dark_mode</span>
+      <span className="icon hidden dark:block">dark_mode</span>
     </button>
   );
 }

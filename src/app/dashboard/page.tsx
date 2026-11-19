@@ -46,6 +46,7 @@ async function Dashboard({ searchParams }: { searchParams: PageProps<"/dashboard
           আগে অন্য একটা ডিভাইসে লগইন ছিল, সেখান থেকে লগআউট হয়েছে। সেখানে কোনো পরীক্ষা চলছিল থাকলে জমা হয়ে গেছে।
         </p>
       )}
+      {sp.pwreset && <p className="mb-6 rounded-2xl border border-emerald-300/50 bg-emerald-50 p-4 text-sm text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-200">পাসওয়ার্ড বদলানো হয়েছে। এখন থেকে নতুন পাসওয়ার্ড দিয়ে লগইন করবেন।</p>}
       {sp.enrolled && <p className="mb-6 rounded-2xl border border-emerald-300/50 bg-emerald-50 p-4 text-sm text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-200">ভর্তি হয়েছে, কোর্সটা নিচে দেখুন।</p>}
       {sp.existing && <p className="mb-6 rounded-2xl border border-amber-300/50 bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">এই নম্বরে আগেই অ্যাকাউন্ট ছিল, তাই নতুন অ্যাকাউন্ট খোলা হয়নি; আগের অ্যাকাউন্টে লগইন হয়েছে।</p>}
       <div className="flex flex-wrap items-end justify-between gap-4">

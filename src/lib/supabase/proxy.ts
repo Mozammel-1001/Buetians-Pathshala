@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasSupabase, supabaseKey, supabaseUrl } from "./env";
+import { SESSION_ONLY_COOKIE, withoutExpiry } from "./session-only";
 
 // লগইন লাগে এমন পাতা (এখানে আগেভাগে ফেরানো; আসল যাচাই পাতায় আর database এ)
 const PROTECTED = ["/dashboard", "/onboarding", "/admin"];
@@ -10,6 +11,7 @@ const PROTECTED = ["/dashboard", "/onboarding", "/admin"];
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
   if (!hasSupabase()) return response;
+  const dropExpiry = request.cookies.get(SESSION_ONLY_COOKIE)?.value === "1";
 
   const supabase = createServerClient(supabaseUrl(), supabaseKey(), {
     cookies: {
@@ -19,7 +21,7 @@ export async function updateSession(request: NextRequest) {
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, dropExpiry ? withoutExpiry(options) : options));
       },
     },
   });

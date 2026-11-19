@@ -8,7 +8,7 @@ import { Field, ListEditor, MediaInput, SaveBar, Text, useDirty, useUnsavedWarni
 
 type Form = {
   slug: string; title: string; subtitle: string; description: string;
-  key_points: { text: string }[]; price: string; price_before: string; thumbnail_url: string;
+  key_points: { text: string }[]; price: string; price_before: string; thumbnail_url: string; category: string; badge: string;
   batch_name: string; starts_on: string; enroll_deadline: string; class_schedule: string; duration_label: string;
   routine: { day: string; time: string; topic: string }[]; faqs: { q: string; a: string }[];
   routine_url: string; syllabus_url: string; is_published: boolean; position: string;
@@ -18,7 +18,7 @@ const toForm = (c: Course | null): Form => ({
   slug: c?.slug ?? "", title: c?.title ?? "", subtitle: c?.subtitle ?? "", description: c?.description ?? "",
   key_points: (c?.key_points ?? []).map((text) => ({ text })),
   price: c ? String(Number(c.price)) : "", price_before: c?.price_before != null ? String(Number(c.price_before)) : "",
-  thumbnail_url: c?.thumbnail_url ?? "", batch_name: c?.batch_name ?? "", starts_on: c?.starts_on ?? "",
+  thumbnail_url: c?.thumbnail_url ?? "", category: c?.category ?? "", badge: c?.badge ?? "", batch_name: c?.batch_name ?? "", starts_on: c?.starts_on ?? "",
   enroll_deadline: c?.enroll_deadline ?? "", class_schedule: c?.class_schedule ?? "", duration_label: c?.duration_label ?? "",
   routine: (c?.routine ?? []).map((r) => ({ day: r.day ?? "", time: r.time ?? "", topic: r.topic ?? "" })),
   faqs: (c?.faqs ?? []).map((f) => ({ q: f.q ?? "", a: f.a ?? "" })),
@@ -50,7 +50,12 @@ export function CourseEditor({ course }: { course: Course | null }) {
             <Text label="ঠিকানা (URL)" value={form.slug} onChange={(v) => set("slug", v.toLowerCase().replace(/\s+/g, "-"))} error={fe.slug}
               placeholder="hsc-27-math" hint={`সাইটে: /courses/${form.slug || "…"} (ছোট হাতের ইংরেজি, সংখ্যা, -)`} />
           </div>
-          <Text label="এক লাইনের পরিচয়" value={form.subtitle} onChange={(v) => set("subtitle", v)} placeholder="HSC উচ্চতর গণিতের পুরো সিলেবাস" />
+          <Text label="এক লাইনের পরিচয়" value={form.subtitle} onChange={(v) => set("subtitle", v)} placeholder="HSC উচ্চতর গণিতের পুরো সিলেবাস" hint="কার্ডে ছবির নিচে দেখায়" />
+          <div className="grid gap-4 md:grid-cols-2">
+            <Text label="ক্যাটাগরি" value={form.category} onChange={(v) => set("category", v)} placeholder="যেমন একাডেমিক, ভর্তি প্রস্তুতি"
+              hint="হোমপেজে আর সব কোর্সের পাতায় এই নামে ফিল্টার হয়; একই ক্যাটাগরির কোর্সে হুবহু একই বানান দিন" />
+            <Text label="কার্ডের কোণের ব্যাজ (ঐচ্ছিক)" value={form.badge} onChange={(v) => set("badge", v)} placeholder="যেমন নতুন, জনপ্রিয়" />
+          </div>
           <MediaInput label="কোর্সের ছবি" value={form.thumbnail_url} onChange={(v) => set("thumbnail_url", v)} folder={folder}
             error={fe.thumbnail_url} hint="১৬:৯ মাপের ছবি ভালো দেখায় (যেমন ১৬০০×৯০০)। আপলোডের সময় নিজে ছোট হয়ে যায়।" />
           <Text label="বিস্তারিত বিবরণ" value={form.description} onChange={(v) => set("description", v)} multiline rows={7} error={fe.description}
@@ -59,7 +64,7 @@ export function CourseEditor({ course }: { course: Course | null }) {
 
         <Card title="কোর্সে যা থাকছে" icon="checklist">
           <ListEditor items={form.key_points} onChange={(v) => set("key_points", v)} blank={{ text: "" }} addLabel="আরেকটা যোগ করুন" max={20}
-            fields={[{ key: "text", label: "বিষয়", placeholder: "যেমন: সাপ্তাহিক MCQ ও লিখিত পরীক্ষা", wide: true }]} emptyText="হোমপেজের কার্ডে প্রথম ৪টা দেখায়।" />
+            fields={[{ key: "text", label: "বিষয়", placeholder: "যেমন: সাপ্তাহিক MCQ ও লিখিত পরীক্ষা", wide: true }]} emptyText="হোমপেজের কার্ডে প্রথম ২টা দেখায়, কোর্সের পাতায় সবগুলো।" />
         </Card>
 
         <Card title="দাম" icon="payments">
@@ -72,7 +77,7 @@ export function CourseEditor({ course }: { course: Course | null }) {
 
         <Card title="ব্যাচ আর সময়" icon="event">
           <div className="grid gap-4 md:grid-cols-2">
-            <Text label="ব্যাচের নাম" value={form.batch_name} onChange={(v) => set("batch_name", v)} placeholder="HSC ২৭ ব্যাচ" />
+            <Text label="ব্যাচের নাম" value={form.batch_name} onChange={(v) => set("batch_name", v)} placeholder="HSC ২৭ ব্যাচ" hint="কার্ডে নামের নিচে সবুজে" />
             <Text label="ক্লাসের সময়" value={form.class_schedule} onChange={(v) => set("class_schedule", v)} placeholder="সপ্তাহে ৩ দিন, রাত ৮টা" />
             <Text label="ক্লাস শুরু" type="date" value={form.starts_on} onChange={(v) => set("starts_on", v)} />
             <Text label="ভর্তির শেষ দিন" type="date" value={form.enroll_deadline} onChange={(v) => set("enroll_deadline", v)} />

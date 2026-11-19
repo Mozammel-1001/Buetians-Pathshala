@@ -9,7 +9,7 @@ import { SiteEditor } from "../_components/site-editor";
 
 export const metadata: Metadata = { title: "সাইটের লেখা" };
 
-const JUMP = [["payment", "bKash"], ["hero", "Hero"], ["features", "কেন আমরা"], ["branches", "ব্রাঞ্চ"], ["cta", "শেষের আহ্বান"], ["contact", "যোগাযোগ"], ["about", "আমাদের সম্পর্কে"]];
+const JUMP = [["payment", "bKash"], ["hero", "Hero"], ["stats", "পরিসংখ্যান"], ["courses", "কোর্স অংশ"], ["features", "কেন আমরা"], ["cta", "শেষের আহ্বান"], ["contact", "যোগাযোগ"], ["about", "আমাদের সম্পর্কে"]];
 
 export default function AdminSite() {
   return (

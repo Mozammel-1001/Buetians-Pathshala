@@ -27,6 +27,9 @@ export function normalizeUserCode(input: string): string | null {
   return "BP-" + m[1];
 }
 
+// পাসওয়ার্ডের সর্বনিম্ন দৈর্ঘ্য (ডেমোতে ৬ ছিল; ৮ নিরাপদ): Supabase এর Authentication → Sign In / Providers → পাসওয়ার্ডের নিয়মেও একই দিন
+export const PASSWORD_MIN = 8;
+
 export const isEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
 
 // সাইন আপের শ্রেণি (database এ লেখা হিসেবে থাকে; তালিকা বদলালে পুরনোগুলোও দেখানো যায়)
