@@ -198,11 +198,14 @@ export async function startSignup(input: SignupInput): Promise<AuthResult> {
   if (used !== null && used >= OTP_MAX) return { error: TOO_MANY };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     phone: e164(phone),
     password: v.password,
     options: { channel: "sms", data: metadataOf(v, guardian) },
   });
+  // নম্বরে আগেই যাচাই করা অ্যাকাউন্ট থাকলে Supabase error দেয় না, নকল "সফল" ফেরত দেয় (identities ফাঁকা) আর কোনো SMS পাঠায় না।
+  // উপরের profile দেখা সাধারণত এটা ধরে; না ধরলে (profile এর সারি হাতে মোছা, বা secret key নেই) এখানে ধরা পড়ে
+  if (!error && data.user && (data.user.identities?.length ?? 0) === 0) return { fieldErrors: { phone: "এই নম্বরে আগেই অ্যাকাউন্ট আছে। লগইন করুন।" }, step: 1 };
   if (error) {
     if (error.code === "user_already_exists" || error.code === "phone_exists") return { fieldErrors: { phone: "এই নম্বরে আগেই অ্যাকাউন্ট আছে। লগইন করুন।" }, step: 1 };
     if (error.code === "weak_password") return { fieldErrors: { password: "আরও শক্ত পাসওয়ার্ড দিন।" }, step: 1 };
