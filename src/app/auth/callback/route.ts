@@ -15,9 +15,10 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
   if (error || !data.user) return NextResponse.redirect(new URL("/sign-in?error=google", origin));
 
+  // আগে ডিভাইস দাবি, তারপর profile (উল্টো ক্রমে database profile পড়াই আটকে দেয়; profile না থাকলে দাবি বাদ যায়)
+  const { replaced } = await claimThisDevice(supabase);
   const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", data.user.id).maybeSingle();
   if (!profile) return NextResponse.redirect(new URL(withParams("/onboarding", { next }), origin));
-  const { replaced } = await claimThisDevice(supabase);
   const target = profile.full_name.trim() ? next : withParams("/onboarding", { next });
   return NextResponse.redirect(new URL(withParams(target, { replaced: replaced ? "1" : null }), origin));
 }

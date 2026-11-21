@@ -74,10 +74,14 @@ export async function requireStaff(next = "/admin"): Promise<Profile> {
   return profile;
 }
 
-// নতুন লগইনের পর: এই লগইনই এখনকার (claim_session)। আগের ডিভাইস লগআউট হয়, সেখানে চলা পরীক্ষা জমা হয়
+// নতুন লগইনের পর: এই লগইনই এখনকার (claim_session)। আগের ডিভাইস লগআউট হয়, সেখানে চলা পরীক্ষা জমা হয়।
+// এটা লগইনের পর **প্রথম** database কাজ হতে হবে: দাবির আগে database এর check_request নতুন লগইনকে "অন্য ডিভাইস"
+// ভেবে সব request আটকায়, profile পড়াও (তখন ভুল করে "অন্য ডিভাইসে লগইন হয়েছে" দেখায়)।
+// profile না থাকলে (সাইন আপ অসম্পূর্ণ, যেমন Google এর পর নম্বর যাচাই বাকি) দাবির কিছু নেই: foreign key (23503) ভাঙে, বাদ
 export async function claimThisDevice(supabase: SupabaseClient) {
   const ua = (await headers()).get("user-agent");
   const { data, error } = await supabase.rpc("claim_session", { p_device: deviceLabel(ua) });
+  if (error?.code === "23503") return { replaced: false, submitted: 0 };
   if (error) throw new Error("লগইন নিশ্চিত করা যায়নি: " + error.message);
   const row = (data as { replaced: boolean; submitted: number }[] | null)?.[0];
   return { replaced: !!row?.replaced, submitted: row?.submitted ?? 0 };

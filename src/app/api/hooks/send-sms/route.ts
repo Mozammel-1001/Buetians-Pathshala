@@ -15,7 +15,11 @@ const fail = (status: number, message: string) => NextResponse.json({ error: { h
 
 export async function POST(request: Request) {
   const body = await request.text();
-  if (!verifyWebhook(process.env.SEND_SMS_HOOK_SECRET ?? "", request.headers, body)) return fail(401, "invalid signature");
+  if (!verifyWebhook(process.env.SEND_SMS_HOOK_SECRET ?? "", request.headers, body)) {
+    // secret না মিললে বা env এ না থাকলে Vercel Logs এ কারণ দেখা যাক (secret নিজে লেখা হয় না)
+    console.error(`[send-sms] signature মেলেনি; SEND_SMS_HOOK_SECRET ${process.env.SEND_SMS_HOOK_SECRET ? "আছে, কিন্তু Supabase এর secret এর সাথে মেলেনি" : "Vercel এ দেওয়া নেই"}`);
+    return fail(401, "invalid signature");
+  }
 
   let payload: Payload;
   try {

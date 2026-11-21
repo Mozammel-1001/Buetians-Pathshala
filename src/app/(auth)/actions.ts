@@ -73,10 +73,11 @@ const verifyError = (error: AuthError) =>
     : "কোডটা মেলেনি, নয়তো মেয়াদ শেষ। আবার দেখে লিখুন, নয়তো নতুন কোড চান।";
 
 // নতুন লগইন জেতানো আর প্রোফাইল দেখা। profile না থাকলে (Google এর পর সাইন আপ অসম্পূর্ণ) আগে /onboarding
+// (আগে ডিভাইস দাবি, তারপর profile: উল্টো ক্রমে database profile পড়াই আটকে দেয়, lib/auth.ts দেখুন)
 async function finishLogin(supabase: SupabaseClient, uid: string, next: string) {
+  const { replaced } = await claimThisDevice(supabase);
   const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", uid).maybeSingle();
   if (!profile) return withParams("/onboarding", { next });
-  const { replaced } = await claimThisDevice(supabase);
   if (!profile.full_name.trim()) return withParams("/onboarding", { next, replaced: replaced ? "1" : null });
   return withParams(next, { replaced: replaced ? "1" : null });
 }
@@ -98,7 +99,7 @@ async function otpUsed(phone: string, purpose: string): Promise<number | null> {
   const admin = createAdminClient();
   if (!admin) return null;
   const since = new Date(Date.now() - OTP_WINDOW_MS).toISOString();
-  const { count } = await admin.from("sms_logs").select("id", { count: "exact", head: true }).eq("phone", phone).eq("purpose", purpose).gte("created_at", since);
+  const { count } = await admin.from("sms_logs").select("id", { count: "exact", head: true }).eq("phone", phone).eq("purpose", purpose).neq("status", "failed").gte("created_at", since);   // যে চেষ্টায় SMS যায়নি তা গোনা হয় না (খরচ নেই, ব্যবহারকারীর সুযোগও পুড়ে না)
   return count ?? 0;
 }
 async function logOtp(phone: string, purpose: string, ok: boolean) {
@@ -246,9 +247,9 @@ export async function completeSignup(input: { phone: string; code: string; next:
 // কোড মিলে অ্যাকাউন্ট চালুর পর: profile এ এবারের তথ্য নিশ্চিত করা (আগে একবার কোড চেয়ে ছেড়ে দিলে metadata পুরনো থাকতে
 // পারে), এই ডিভাইস দাবি, তারপর স্বাগত বার্তা (আইডিসহ)। আগে থেকেই অ্যাকাউন্ট থাকলে তার তথ্য বদলায় না, শুধু লগইন
 async function finishSignup(supabase: SupabaseClient, uid: string, values: SignupValues, next: string) {
+  await claimThisDevice(supabase);   // আগে দাবি, নইলে নিচের profile পড়া আটকে যায়
   const { data: profile } = await supabase.from("profiles").select("user_code, created_at").eq("id", uid).maybeSingle();
   if (!profile) return { error: "অ্যাকাউন্ট চালু হয়নি। আবার কোড চেয়ে চেষ্টা করুন।" };
-  await claimThisDevice(supabase);
   const fresh = Date.now() - new Date(profile.created_at).getTime() < 10 * 60 * 1000;
   if (!fresh) return { to: withParams(next, { existing: "1" }) };
   const guardian = normalizeBdPhone(values.guardian_phone);
