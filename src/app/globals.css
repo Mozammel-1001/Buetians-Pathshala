@@ -453,3 +453,209 @@
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
   background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em;
 }
+
+/* কোর্সের পাতার "কোর্সে ভর্তি হোন" বোতাম (course_details.html): কম গোল, ছায়া, hover এ কমলা-লাল */
+.enroll-cta { border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); }
+.enroll-cta:hover { background-color: #d94a32; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); }
+
+/* ===== অ্যাডমিন প্যানেল (admin_dashboard.html এর class) ===== */
+@utility btn-soft {
+  @apply btn bg-primary/10 px-4! py-2! text-primary hover:bg-primary hover:text-on-primary dark:bg-primary-fixed/10 dark:text-primary-fixed dark:hover:bg-primary-fixed dark:hover:text-on-primary-fixed;
+}
+@utility btn-outline {
+  @apply btn border border-outline-variant/40 px-4! py-2! text-on-surface-variant hover:border-primary hover:text-primary dark:border-outline-variant/20 dark:text-surface-variant dark:hover:text-primary-fixed;
+}
+@utility btn-danger {
+  @apply btn bg-error text-white hover:-translate-y-px hover:bg-red-700;
+}
+@utility icon-btn {
+  @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-on-surface-variant transition-colors duration-200 hover:bg-surface-container hover:text-primary dark:text-surface-variant dark:hover:bg-white/10 dark:hover:text-primary-fixed;
+}
+@utility icon-btn-ok {
+  @apply icon-btn bg-emerald-50 text-emerald-600 hover:bg-emerald-600! hover:text-white! dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-500!;
+}
+@utility icon-btn-bad {
+  @apply icon-btn bg-error/10 text-error hover:bg-error! hover:text-white! dark:bg-red-400/10 dark:text-red-300 dark:hover:bg-red-500!;
+}
+@utility chk {
+  @apply h-4 w-4 rounded border-outline-variant accent-[var(--color-primary)] dark:border-outline-variant/40;
+}
+@utility badge {
+  @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] leading-none font-bold whitespace-nowrap;
+}
+@utility tabs {
+  @apply inline-flex flex-wrap gap-1 rounded-xl border border-outline-variant/20 bg-surface-container-low p-1 dark:bg-white/5;
+}
+@utility tab {
+  @apply rounded-lg px-3.5 py-2 text-sm font-bold whitespace-nowrap text-on-surface-variant transition-colors duration-200 hover:text-primary dark:text-surface-variant dark:hover:text-primary-fixed;
+  &[aria-current="page"], &.is-active {
+    @apply bg-primary text-white shadow-sm hover:text-white dark:bg-primary-fixed dark:text-on-primary-fixed dark:hover:text-on-primary-fixed;
+  }
+}
+@utility th {
+  @apply px-4 py-3 text-left text-xs font-bold whitespace-nowrap text-on-surface-variant dark:text-surface-variant;
+}
+@utility td {
+  @apply px-4 py-3.5 align-middle text-sm text-on-background dark:text-background;
+}
+@utility nav-link {
+  @apply flex items-center gap-3 rounded-lg border-l-4 border-transparent px-4 py-2.5 text-on-surface-variant transition-colors hover:bg-surface-container-low dark:text-surface-variant dark:hover:bg-inverse-surface;
+  &[aria-current="page"] {
+    @apply border-primary bg-primary/10 text-primary dark:border-primary-fixed dark:bg-primary-fixed/10 dark:text-primary-fixed;
+  }
+}
+@utility chip-link {
+  @apply flex items-center gap-1.5 rounded-full border border-outline-variant/30 bg-surface-container-lowest px-3.5 py-2 text-sm font-bold whitespace-nowrap text-on-surface-variant dark:border-outline-variant/10 dark:bg-inverse-surface dark:text-surface-variant;
+  &[aria-current="page"] {
+    @apply border-primary bg-primary text-white dark:border-primary-fixed dark:bg-primary-fixed dark:text-on-primary-fixed;
+  }
+}
+@utility nav-count {
+  @apply ml-auto flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-error px-1.5 text-[11px] font-bold text-white;
+}
+@utility section-title {
+  @apply text-lg font-bold text-on-background dark:text-background;
+}
+@utility trx {
+  font-family: ui-monospace, "Inter", monospace; letter-spacing: 0.06em; font-weight: 600;
+}
+.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: rgba(108, 122, 113, 0.1); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 108, 73, 0.5); border-radius: 10px; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+/* পাতা বদলালে ভেতরের অংশ নিচ থেকে উঠে আসে; তালিকার সারি একটার পর একটা */
+.view-in { animation: viewIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes viewIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.row-in { animation: rowIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 40ms); }
+@keyframes rowIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.chart-bar { transition: height 1s cubic-bezier(0.22, 1, 0.36, 1); height: 0; }
+.reveal.active .chart-bar { height: var(--target-height); }
+.hbar { transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1); width: 0; }
+.reveal.active .hbar { width: var(--target-width); }
+@media (prefers-reduced-motion: reduce) { .view-in, .row-in { animation: none; } .chart-bar, .hbar { transition: none; } }
+
+/* নোট আর বুকমার্ক পাতা (notes.html, bookmarks.html): কার্ড উপরে ওঠে (tilt নয়), টোস্ট ডান থেকে আসে আর নিচের দাগ ৩ সেকেন্ডে ফুরায়,
+   মোছার modal ছোট থেকে বড় হয় */
+.note-card, .bookmark-card { transition: all 0.3s ease; }
+.note-card:hover { transform: translateY(-4px); border-color: rgba(111, 251, 190, 0.4); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); }
+.bookmark-card:hover { transform: translateY(-4px); border-color: rgba(178, 89, 255, 0.4); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); }
+@keyframes demoSlideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes demoFadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes demoProgressShrink { from { width: 100%; } to { width: 0%; } }
+.toast-enter { animation: demoSlideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.toast-exit { animation: demoFadeOut 0.4s ease forwards; }
+.progress-bar-anim { animation: demoProgressShrink 3s linear forwards; }
+.modal-enter { opacity: 0; transform: scale(0.95); transition: all 0.3s ease-out; }
+.modal-enter-active { opacity: 1; transform: scale(1); }
+@media (prefers-reduced-motion: reduce) { .note-card:hover, .bookmark-card:hover { transform: none; } .toast-enter, .toast-exit, .progress-bar-anim { animation-duration: 0.01ms; } }
+
+/* ---------- পরীক্ষার পাতা (practice.html) ---------- */
+.ex-root .katex { font-size: 1.05em; }
+.ex-opt { display: flex; align-items: center; gap: .9rem; width: 100%; padding: .9rem 1rem; border-radius: 1rem; border: 1.5px solid rgba(108, 122, 113, .3); background: #fff; color: #0b1c30; font-weight: 600; transition: all .25s cubic-bezier(0.25, 1, 0.5, 1); }
+.dark .ex-opt { background: #0b1c30; color: #f8f9ff; border-color: rgba(187, 202, 191, .15); }
+.ex-opt:hover:not(:disabled) { border-color: #006c49; transform: translateY(-1px); }
+.ex-opt.is-on { border-color: #006c49; background: rgba(0, 108, 73, .08); box-shadow: 0 4px 14px rgba(0, 108, 73, .18); }
+.dark .ex-opt.is-on { border-color: #6ffbbe; background: rgba(111, 251, 190, .08); }
+.ex-opt:disabled { opacity: .6; cursor: not-allowed; }
+.ex-k { flex: 0 0 2rem; height: 2rem; border-radius: 999px; display: grid; place-items: center; font-weight: 700; border: 1.5px solid rgba(108, 122, 113, .5); }
+.ex-opt.is-on .ex-k { background: #006c49; border-color: #006c49; color: #fff; }
+.ex-cell { height: 2.5rem; border-radius: .7rem; font-weight: 700; border: 1.5px solid rgba(108, 122, 113, .3); transition: all .2s; }
+.ex-cell.is-done { background: #10b981; border-color: #10b981; color: #fff; }
+.ex-cell.is-mark { background: #f59e0b; border-color: #f59e0b; color: #fff; }
+.ex-cell.is-cur { outline: 3px solid rgba(0, 108, 73, .35); outline-offset: 1px; }
+.ex-cell.is-pending { border-style: dashed; border-color: #3b82f6; }
+.ex-cell.is-done.is-pending, .ex-cell.is-mark.is-pending { box-shadow: inset 0 0 0 2px #3b82f6; }
+.ex-ro { position: relative; overflow: hidden; display: flex; align-items: center; gap: .75rem; padding: .7rem .9rem; border-radius: .9rem; border: 1.5px solid rgba(108, 122, 113, .25); }
+.ex-ro > * { position: relative; z-index: 1; }
+.ex-ro .ex-bar { position: absolute; inset: 0 auto 0 0; z-index: 0; background: rgba(108, 122, 113, .1); }
+.ex-ro.is-right { border-color: #10b981; background: rgba(16, 185, 129, .08); }
+.ex-ro.is-right .ex-bar { background: rgba(16, 185, 129, .16); }
+.ex-ro.is-wrong { border-color: #ef4444; background: rgba(239, 68, 68, .07); }
+.ex-thumb { position: relative; width: 96px; cursor: grab; touch-action: none; user-select: none; }
+.ex-thumb img { width: 96px; height: 128px; object-fit: cover; border-radius: .6rem; border: 1px solid rgba(108, 122, 113, .3); background: #fff; display: block; pointer-events: none; }
+.ex-thumb.is-drag { opacity: .5; }
+.ex-pno { position: absolute; left: 4px; bottom: 4px; background: rgba(0, 0, 0, .6); color: #fff; font-size: 11px; border-radius: 6px; padding: 0 5px; }
+.ex-pst { position: absolute; right: 4px; bottom: 4px; background: #fff; color: #006c49; border-radius: 999px; width: 20px; height: 20px; display: grid; place-items: center; }
+.ex-del { position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; border-radius: 999px; background: #ba1a1a; color: #fff; font-weight: 700; line-height: 22px; }
+@keyframes pulse-danger { 0%, 100% { box-shadow: 0 0 15px 2px rgba(186, 26, 26, 0.4); border-color: rgba(186, 26, 26, 0.6); } 50% { box-shadow: 0 0 35px 8px rgba(186, 26, 26, 0.8); border-color: rgba(186, 26, 26, 1); } }
+.timer-danger { animation: pulse-danger 1.5s ease-in-out infinite !important; color: #ba1a1a !important; background: rgba(186, 26, 26, .12) !important; border-color: rgba(186, 26, 26, .6) !important; }
+.dark .timer-danger { color: #ffdad6 !important; }
+.timer-warn { background: rgba(245, 158, 11, .15) !important; color: #b45309 !important; }
+.dark .timer-warn { color: #fcd34d !important; }
+.ex-field { width: 100%; background: #fff; border: 1px solid rgba(108, 122, 113, .4); border-radius: .75rem; padding: .6rem .9rem; font-size: .9rem; color: #0b1c30; }
+.dark .ex-field { background: #213145; border-color: rgba(187, 202, 191, .2); color: #f8f9ff; }
+.ex-field:focus { outline: none; border-color: #006c49; }
+.ex-field.is-invalid { border-color: #ba1a1a !important; box-shadow: 0 0 0 3px rgba(186, 26, 26, .15); }
+/* কাটা খাতা: লাইন টানা কাগজ, নীল কালির হাতের লেখা, উপরে লাল দাগ */
+.khata { position: relative; background-color: #fffdf6; background-image: linear-gradient(90deg, transparent 58px, rgba(220, 38, 38, .5) 58px, rgba(220, 38, 38, .5) 60px, transparent 60px), repeating-linear-gradient(to bottom, transparent 0, transparent 35px, #c4d6ee 35px, #c4d6ee 36px); background-position: 0 0, 0 14px; border-radius: 12px; color: #1e3a8a; font-family: 'Galada', 'Hind Siliguri', cursive; font-size: 20px; line-height: 36px; padding: 50px 24px 40px 76px; min-height: 360px; box-shadow: 0 1px 2px rgba(0, 0, 0, .08), 0 10px 30px -12px rgba(0, 0, 0, .35); overflow: hidden; }
+.khata .k-head { position: absolute; top: 10px; left: 76px; right: 18px; display: flex; justify-content: space-between; font-family: 'Hind Siliguri', sans-serif; font-size: 12px; line-height: 20px; color: #64748b; }
+.khata .ln { white-space: pre-wrap; word-break: break-word; }
+.khata svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* পরীক্ষা চলার সময়: সাইটের মেনু, লিংক আর footer লুকানো (ভুল করে চাপলে পাতা ছেড়ে জমা হয়ে যেত), টেনে রিফ্রেশ বন্ধ */
+html.ex-running, html.ex-running body { overscroll-behavior-y: none; }
+html.ex-running header nav, html.ex-running header a, html.ex-running header button[aria-controls="mobile-menu"], html.ex-running #mobile-menu, html.ex-running footer { display: none !important; }
+.ex-qimg { display: block; max-width: min(100%, 520px); max-height: 320px; margin: -0.5rem 0 1.25rem; border-radius: .8rem; background: #fff; border: 1px solid rgba(108, 122, 113, .25); cursor: zoom-in; }
+.ex-oimg { display: block; max-width: 100%; max-height: 140px; margin-top: .4rem; border-radius: .5rem; background: #fff; }
+.ex-ro .ex-oimg { cursor: zoom-in; }
+.ex-crop { position: relative; touch-action: none; user-select: none; }
+.ex-crop canvas { display: block; border-radius: .5rem; }
+.ex-crop svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.ex-handle { position: absolute; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 999px; background: #10b981; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, .45); cursor: grab; touch-action: none; }
+
+/* ---------- লেকচারের পাতা (online_class.html) ---------- */
+@keyframes popFade { 0% { opacity: 0; transform: scale(0.8); } 15% { opacity: 1; transform: scale(1.1); } 80% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.9); } }
+.animate-pop-fade { animation: popFade 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+@keyframes ocToastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.oc-toast-in { animation: ocToastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+.oc-toast-out { transform: translateX(100%); opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s 0.3s; }
+@keyframes ocShrink { from { width: 100%; } to { width: 0%; } }
+.oc-progress { animation: ocShrink 3s linear forwards; }
+.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(111, 251, 190, 0.5); }
+
+/* ---------- লাইভ ক্লাস (live_class.html) ---------- */
+.ctrl-btn { width: 48px; height: 48px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.16); color: #fff; backdrop-filter: blur(6px); transition: background 0.2s ease, transform 0.2s ease; }
+.ctrl-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.06); }
+.ctrl-btn.is-off { background: #ba1a1a; }
+@keyframes commentIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.comment-in { animation: commentIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@media (prefers-reduced-motion: reduce) { .comment-in { animation: none; } }
+
+/* ---------- প্রশ্নপত্র সম্পাদক (exam_editor.html) ---------- */
+.ed-label { display: block; font-size: .75rem; font-weight: 700; margin-bottom: .35rem; color: #3c4a42; }
+.dark .ed-label { color: #bbcabf; }
+.ed-pv { margin-top: .5rem; padding: .7rem .9rem; border-radius: .75rem; border: 1px dashed rgba(108, 122, 113, .4); font-size: .95rem; line-height: 1.8; min-height: 2.6rem; overflow-x: auto; }
+.ed-thumb { height: 64px; max-width: 160px; object-fit: contain; border-radius: .5rem; border: 1px solid rgba(108, 122, 113, .3); background: #fff; }
+.ed-snip { padding: .2rem .55rem; border-radius: .5rem; border: 1px solid rgba(108, 122, 113, .3); font-size: .8rem; font-weight: 700; background: transparent; transition: all .15s; }
+.ed-snip:hover { border-color: #006c49; color: #006c49; }
+.dark .ed-snip:hover { border-color: #6ffbbe; color: #6ffbbe; }
+.ed-opt-row { display: flex; align-items: flex-start; gap: .6rem; padding: .55rem .7rem; border-radius: .9rem; border: 1.5px solid rgba(108, 122, 113, .25); }
+.ed-opt-row.is-key { border-color: #10b981; background: rgba(16, 185, 129, .07); }
+.ed-qimg { display: block; max-width: min(100%, 420px); max-height: 240px; margin-top: .6rem; border-radius: .6rem; background: #fff; border: 1px solid rgba(108, 122, 113, .25); }
+.ed-oimg { display: block; max-height: 90px; max-width: 100%; margin-top: .3rem; border-radius: .4rem; background: #fff; }
+.ed-pre { white-space: pre-wrap; font-size: .8rem; padding: .7rem .9rem; border-radius: .75rem; background: rgba(108, 122, 113, .08); }
+.ed-q .katex-display { margin: .4rem 0; }
+.ex-field:disabled { opacity: .6; cursor: not-allowed; }
+select.ex-field.is-invalid, input.ex-field.is-invalid { border-color: #ba1a1a !important; }
+
+/* ---------- খাতা মূল্যায়ন (evaluator_dashboard.html) ---------- */
+.ex-field.is-invalid { border-color: #ba1a1a !important; box-shadow: 0 0 0 3px rgba(186, 26, 26, .15); }
+.khata-img { position: relative; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .08), 0 10px 30px -12px rgba(0, 0, 0, .35); }
+.khata-img img { display: block; width: 100%; user-select: none; -webkit-user-drag: none; pointer-events: none; }
+.khata-img svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.khata-img .k-tag { position: absolute; top: 8px; right: 8px; font-size: 11px; line-height: 18px; background: rgba(0, 0, 0, .55); color: #fff; border-radius: 6px; padding: 0 6px; }
+.khata-img.tool-on { cursor: crosshair; touch-action: none; }
+.ev-qimg { display: block; max-width: 100%; max-height: 260px; margin-top: .75rem; border-radius: .6rem; background: #fff; border: 1px solid rgba(108, 122, 113, .25); }
+.ev-tool.is-on { background: #e11d1d; color: #fff; border-color: #e11d1d; }
+.ev-row { animation: evRowIn .5s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes evRowIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.ev-bar > i { display: block; height: 100%; float: left; transition: width .8s cubic-bezier(0.22, 1, 0.36, 1); }
+details.ev-det > summary { list-style: none; cursor: pointer; }
+details.ev-det > summary::-webkit-details-marker { display: none; }
+details.ev-det[open] .ev-chev { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .ev-row { animation: none; } }
+
+/* ---------- শিক্ষকের ড্যাশবোর্ড (teacher_dashboard.html) ---------- */
+.tqa-row { animation: tqaRowIn .5s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes tqaRowIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .tqa-row { animation: none; } }

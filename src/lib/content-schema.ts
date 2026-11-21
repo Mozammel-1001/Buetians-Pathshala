@@ -52,18 +52,20 @@ export const FEATURE_VARIANTS: Record<FeatureVariant, string> = { large: "বড
 
 export type RoutineRow = { day: string; time: string; topic: string };
 export type Faq = { q: string; a: string };
+export type PrizeGroup = { title: string; items: string[] };
 export type Course = {
   id: number; slug: string; title: string; subtitle: string | null; description: string | null;
-  key_points: string[]; price: number; price_before: number | null; thumbnail_url: string | null;
+  key_points: string[]; highlights: string[]; prizes: PrizeGroup[]; price: number; price_before: number | null; thumbnail_url: string | null;
   category: string | null; badge: string | null;
   batch_name: string | null; starts_on: string | null; enroll_deadline: string | null;
   class_schedule: string | null; duration_label: string | null;
+  medium: string | null; total_seats: number | null; promo_video_url: string | null;
   routine: RoutineRow[]; faqs: Faq[]; routine_url: string | null; syllabus_url: string | null;
   is_published: boolean; position: number; updated_at: string;
 };
 export const COURSE_COLUMNS =
-  "id, slug, title, subtitle, description, key_points, price, price_before, thumbnail_url, category, badge, batch_name, starts_on, enroll_deadline, " +
-  "class_schedule, duration_label, routine, faqs, routine_url, syllabus_url, is_published, position, updated_at";
+  "id, slug, title, subtitle, description, key_points, highlights, prizes, price, price_before, thumbnail_url, category, badge, batch_name, starts_on, enroll_deadline, " +
+  "class_schedule, duration_label, medium, total_seats, promo_video_url, routine, faqs, routine_url, syllabus_url, is_published, position, updated_at";
 
 // ---------- শুরুর মান: ডেমো সাইটের (index.html) লেখা হুবহু ----------
 const UNSPLASH = (id: string) => `https://images.unsplash.com/${id}?q=80&w=800&auto=format&fit=crop`;
@@ -376,6 +378,8 @@ export function cleanCourse(raw: Record<string, unknown>): { value: CourseInput;
     subtitle: opt(raw.subtitle, 200),
     description: opt(raw.description, 8000),
     key_points: (Array.isArray(raw.key_points) ? raw.key_points : []).map((k) => text(k, 120)).filter(Boolean).slice(0, 20),
+    highlights: (Array.isArray(raw.highlights) ? raw.highlights : []).map((k) => text(k, 150)).filter(Boolean).slice(0, 20),
+    prizes: list(raw.prizes, 6, (x) => ({ title: text(x.title, 80), items: (Array.isArray(x.items) ? x.items : []).map((i) => text(i, 120)).filter(Boolean).slice(0, 10) }), (x) => !!(x.title && x.items.length)),
     price: money(raw.price) ?? NaN,
     price_before: money(raw.price_before),
     thumbnail_url: url(raw.thumbnail_url) || null,
@@ -386,6 +390,9 @@ export function cleanCourse(raw: Record<string, unknown>): { value: CourseInput;
     enroll_deadline: date(raw.enroll_deadline),
     class_schedule: opt(raw.class_schedule, 150),
     duration_label: opt(raw.duration_label, 40),
+    medium: opt(raw.medium, 40),
+    total_seats: (() => { const n = Math.trunc(Number(toAsciiDigits(String(raw.total_seats ?? "")))); return n > 0 && n <= 100000 ? n : null; })(),
+    promo_video_url: url(raw.promo_video_url) || null,
     routine: list(raw.routine, 200, (x) => ({ day: text(x.day, 60), time: text(x.time, 60), topic: text(x.topic, 200) }), (x) => !!(x.day || x.topic)),
     faqs: list(raw.faqs, 30, (x) => ({ q: text(x.q, 300), a: text(x.a, 2000) }), (x) => !!x.q),
     routine_url: url(raw.routine_url) || null,
@@ -399,7 +406,7 @@ export function cleanCourse(raw: Record<string, unknown>): { value: CourseInput;
   if (!Number.isFinite(value.price) || value.price < 0) errors.price = "সঠিক দাম লিখুন (০ হলে ফ্রি)";
   if (value.price_before !== null && (!Number.isFinite(value.price_before) || value.price_before <= value.price))
     errors.price_before = "আগের দাম এখনকার দামের চেয়ে বেশি হতে হবে, নয়তো ফাঁকা রাখুন";
-  for (const k of ["thumbnail_url", "routine_url", "syllabus_url"] as const)
+  for (const k of ["thumbnail_url", "routine_url", "syllabus_url", "promo_video_url"] as const)
     if (text(raw[k], 500) && !value[k]) errors[k] = "শুধু https লিংক";
   if (value.is_published && !value.description) errors.description = "প্রকাশের আগে বিবরণ লিখুন";
   return { value, errors };

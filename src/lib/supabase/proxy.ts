@@ -4,7 +4,7 @@ import { hasSupabase, supabaseKey, supabaseUrl } from "./env";
 import { SESSION_ONLY_COOKIE, withoutExpiry } from "./session-only";
 
 // লগইন লাগে এমন পাতা (এখানে আগেভাগে ফেরানো; আসল যাচাই পাতায় আর database এ)
-const PROTECTED = ["/dashboard", "/onboarding", "/admin"];
+const PROTECTED = ["/dashboard", "/onboarding", "/admin", "/manager", "/exam-editor", "/evaluator", "/teacher"];
 
 // প্রতি request এ: মেয়াদ ফুরানো access token থাকলে নবায়ন করে cookie তে রাখা, আর লগইন ছাড়া সুরক্ষিত পাতায় গেলে
 // সাইন ইনে পাঠানো। getClaims() JWT এর সই যাচাই করে, শুধু cookie বিশ্বাস করে না

@@ -13,9 +13,9 @@ const JUMP = [["payment", "bKash"], ["hero", "Hero"], ["stats", "পরিসং
 
 export default function AdminSite() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">সাইটের লেখা</h1>
+        <h2 className="text-2xl font-bold text-on-background md:text-3xl dark:text-background">সাইটের লেখা</h2>
         <p className="mt-1 text-sm muted">প্রতিটি অংশ আলাদা সেভ হয়। সেভের সাথে সাথে সাইটে দেখা যায়। কোর্সের তথ্য <Link href="/admin/courses" className="font-bold text-primary dark:text-primary-fixed">কোর্স</Link> পাতায়।</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {JUMP.map(([k, l]) => <a key={k} href={`#${k}`} className="rounded-full border border-outline-variant/40 px-3 py-1 text-xs font-bold muted hover:border-primary hover:text-primary">{l}</a>)}

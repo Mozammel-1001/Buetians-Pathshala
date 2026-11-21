@@ -9,13 +9,14 @@ import { CodeStep, bn } from "./otp-code";
 const EMPTY: SignupValues = { full_name: "", phone: "", email: "", guardian_phone: "", institute: "", class_level: "" };
 
 // সাইন আপ (আর Google এর পর সাইন আপ শেষ করা): সব তথ্য → মোবাইলে কোড → মিললে অ্যাকাউন্ট চালু, আইডিসহ স্বাগত বার্তা
-export function SignupFlow({ send, verify, next, initial, lockedEmail, submitLabel = "কোড পাঠান" }: {
+export function SignupFlow({ send, verify, next, initial, lockedEmail, submitLabel = "কোড পাঠান", otp = true }: {
   send: (prev: SignupState, fd: FormData) => Promise<SignupState>;
   verify: (prev: SignupState, fd: FormData) => Promise<SignupState>;
   next: string;
   initial?: Partial<SignupValues>;
   lockedEmail?: string | null;   // Google: ইমেইল Google এর, বদলানো যায় না
   submitLabel?: string;
+  otp?: boolean;   // false: SMS API পাওয়া পর্যন্ত কোড ছাড়া (জমা দিলেই অ্যাকাউন্ট চালু)
 }) {
   const [state, action, pending] = useActionState(async (prev: SignupState, fd: FormData): Promise<SignupState> => {
     const intent = fd.get("intent");
@@ -81,9 +82,9 @@ export function SignupFlow({ send, verify, next, initial, lockedEmail, submitLab
       </div>
       {state.error && !Object.keys(fe).length && <p className="text-sm font-bold text-error dark:text-red-300" role="alert">{state.error}</p>}
       <button type="submit" name="intent" value="send" disabled={pending} className="btn-primary w-full py-3!">
-        {pending ? "পাঠানো হচ্ছে…" : submitLabel}
+        {pending ? (otp ? "পাঠানো হচ্ছে…" : "চালু হচ্ছে…") : submitLabel}
       </button>
-      <p className="text-center text-xs muted">মোবাইল নম্বরে একটা কোড যাবে। কোড মিললে অ্যাকাউন্ট চালু হবে আর আপনার আইডি দেখাবে।</p>
+      <p className="text-center text-xs muted">{otp ? "মোবাইল নম্বরে একটা কোড যাবে। কোড মিললে অ্যাকাউন্ট চালু হবে আর আপনার আইডি দেখাবে।" : "জমা দিলেই অ্যাকাউন্ট চালু হবে আর আপনার আইডি দেখাবে।"}</p>
     </form>
   );
 }

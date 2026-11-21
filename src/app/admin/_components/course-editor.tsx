@@ -5,11 +5,12 @@ import Link from "next/link";
 import type { Course } from "@/lib/content-schema";
 import { deleteCourse, saveCourse } from "../actions";
 import { Field, ListEditor, MediaInput, SaveBar, Text, useDirty, useUnsavedWarning } from "./fields";
+import { useConfirmSubmit } from "./kit";
 
 type Form = {
   slug: string; title: string; subtitle: string; description: string;
-  key_points: { text: string }[]; price: string; price_before: string; thumbnail_url: string; category: string; badge: string;
-  batch_name: string; starts_on: string; enroll_deadline: string; class_schedule: string; duration_label: string;
+  key_points: { text: string }[]; highlights: { text: string }[]; prizes: { title: string; items: string }[]; price: string; price_before: string; thumbnail_url: string; category: string; badge: string;
+  batch_name: string; starts_on: string; enroll_deadline: string; class_schedule: string; duration_label: string; medium: string; total_seats: string; promo_video_url: string;
   routine: { day: string; time: string; topic: string }[]; faqs: { q: string; a: string }[];
   routine_url: string; syllabus_url: string; is_published: boolean; position: string;
 };
@@ -17,9 +18,11 @@ type Form = {
 const toForm = (c: Course | null): Form => ({
   slug: c?.slug ?? "", title: c?.title ?? "", subtitle: c?.subtitle ?? "", description: c?.description ?? "",
   key_points: (c?.key_points ?? []).map((text) => ({ text })),
+  highlights: (c?.highlights ?? []).map((text) => ({ text })),
+  prizes: (c?.prizes ?? []).map((p) => ({ title: p.title ?? "", items: (p.items ?? []).join("\n") })),
   price: c ? String(Number(c.price)) : "", price_before: c?.price_before != null ? String(Number(c.price_before)) : "",
   thumbnail_url: c?.thumbnail_url ?? "", category: c?.category ?? "", badge: c?.badge ?? "", batch_name: c?.batch_name ?? "", starts_on: c?.starts_on ?? "",
-  enroll_deadline: c?.enroll_deadline ?? "", class_schedule: c?.class_schedule ?? "", duration_label: c?.duration_label ?? "",
+  enroll_deadline: c?.enroll_deadline ?? "", class_schedule: c?.class_schedule ?? "", duration_label: c?.duration_label ?? "", medium: c?.medium ?? "", total_seats: c?.total_seats ? String(c.total_seats) : "", promo_video_url: c?.promo_video_url ?? "",
   routine: (c?.routine ?? []).map((r) => ({ day: r.day ?? "", time: r.time ?? "", topic: r.topic ?? "" })),
   faqs: (c?.faqs ?? []).map((f) => ({ q: f.q ?? "", a: f.a ?? "" })),
   routine_url: c?.routine_url ?? "", syllabus_url: c?.syllabus_url ?? "", is_published: c?.is_published ?? false,
@@ -35,7 +38,7 @@ export function CourseEditor({ course }: { course: Course | null }) {
   const { dirty, markSubmitted } = useDirty(JSON.stringify(form), state?.savedAt);
   useUnsavedWarning(dirty && !pending);
 
-  const payload = { ...form, key_points: form.key_points.map((k) => k.text) };
+  const payload = { ...form, key_points: form.key_points.map((k) => k.text), highlights: form.highlights.map((k) => k.text), prizes: form.prizes.map((p) => ({ title: p.title, items: p.items.split("\n") })) };
   const folder = `courses/${form.slug || "new"}`;
 
   return (
@@ -62,6 +65,17 @@ export function CourseEditor({ course }: { course: Course | null }) {
             hint="নতুন লাইন যেমন লিখবেন সাইটে তেমনই দেখাবে।" />
         </Card>
 
+        <Card title="ওভারভিউর হাইলাইট" icon="play_arrow">
+          <ListEditor items={form.highlights} onChange={(v) => set("highlights", v)} blank={{ text: "" }} addLabel="আরেকটা যোগ করুন" max={20}
+            fields={[{ key: "text", label: "হাইলাইট", placeholder: "যেমন: ৫০+ লাইভ ইন্টারেক্টিভ ক্লাস", wide: true }]} emptyText="কোর্সের পাতায় বিবরণের নিচে ▶ চিহ্ন দিয়ে দেখায়। ফাঁকা থাকলে দেখায় না।" />
+        </Card>
+
+        <Card title="পুরস্কার" icon="emoji_events">
+          <ListEditor items={form.prizes} onChange={(v) => set("prizes", v)} blank={{ title: "", items: "" }} addLabel="আরেকটা পুরস্কারের অংশ" max={6}
+            fields={[{ key: "title", label: "শিরোনাম", placeholder: "যেমন: 🏆 মাসিক মেগা পুরষ্কার", wide: true }, { key: "items", label: "পুরস্কারগুলো (প্রতি লাইনে একটা)", placeholder: "১ম পুরষ্কার - স্মার্টওয়াচ", wide: true, multiline: true }]}
+            emptyText="কোর্সের পাতায় হাইলাইটের নিচে আলাদা অংশে দেখায়। ফাঁকা থাকলে দেখায় না।" />
+        </Card>
+
         <Card title="কোর্সে যা থাকছে" icon="checklist">
           <ListEditor items={form.key_points} onChange={(v) => set("key_points", v)} blank={{ text: "" }} addLabel="আরেকটা যোগ করুন" max={20}
             fields={[{ key: "text", label: "বিষয়", placeholder: "যেমন: সাপ্তাহিক MCQ ও লিখিত পরীক্ষা", wide: true }]} emptyText="হোমপেজের কার্ডে প্রথম ২টা দেখায়, কোর্সের পাতায় সবগুলো।" />
@@ -82,7 +96,11 @@ export function CourseEditor({ course }: { course: Course | null }) {
             <Text label="ক্লাস শুরু" type="date" value={form.starts_on} onChange={(v) => set("starts_on", v)} />
             <Text label="ভর্তির শেষ দিন" type="date" value={form.enroll_deadline} onChange={(v) => set("enroll_deadline", v)} />
             <Text label="মেয়াদ" value={form.duration_label} onChange={(v) => set("duration_label", v)} placeholder="৬ মাস" />
+            <Text label="মাধ্যম" value={form.medium} onChange={(v) => set("medium", v)} placeholder="বাংলা" />
+            <Text label="মোট আসন (ঐচ্ছিক)" value={form.total_seats} onChange={(v) => set("total_seats", v.replace(/[^\d০-৯]/g, ""))} placeholder="৫০" />
           </div>
+          <Text label="প্রোমো ভিডিওর লিংক (ঐচ্ছিক)" value={form.promo_video_url} onChange={(v) => set("promo_video_url", v)} error={fe.promo_video_url}
+            placeholder="https://www.youtube.com/watch?v=..." hint="কোর্সের পাতায় ছবির উপর প্লে বোতাম আসে; চাপলে ভিডিও খোলে" />
         </Card>
 
         <Card title="রুটিন" icon="calendar_month">
@@ -136,9 +154,11 @@ function Card({ title, icon, children }: { title: string; icon: string; children
 
 function DeleteCourse({ id, title }: { id: number; title: string }) {
   const [state, action, pending] = useActionState(deleteCourse, undefined);
+  const [onSubmit, node] = useConfirmSubmit(() => ({ title: "কোর্স মুছে ফেলবেন?", sub: title, tone: "danger", icon: "delete", ok: "হ্যাঁ, মুছুন",
+    body: "কোর্সের সব লেসন, ম্যাটেরিয়াল আর পরীক্ষাও মুছে যাবে। এটা ফেরানো যায় না। ভর্তি বা পেমেন্ট থাকলে মোছা যায় না।" }));
   return (
-    <form action={action} onSubmit={(e) => { if (!confirm(`"${title}" কোর্সটা মুছে ফেলবেন? এটা ফেরানো যায় না।`)) e.preventDefault(); }}
-      className="card flex flex-wrap items-center justify-between gap-3 border-error/30! p-5">
+    <form action={action} onSubmit={onSubmit} className="card flex flex-wrap items-center justify-between gap-3 border-error/30! p-5">
+      {node}
       <input type="hidden" name="id" value={id} />
       <Field label="কোর্স মোছা" hint="ভর্তি বা পেমেন্ট থাকলে মোছা যায় না; তখন প্রকাশ বন্ধ করে রাখুন।" error={state?.error}><span /></Field>
       <button type="submit" disabled={pending} className="btn border border-error/40 text-error hover:bg-error/10">

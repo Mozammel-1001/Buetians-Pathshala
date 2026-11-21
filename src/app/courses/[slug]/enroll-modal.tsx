@@ -48,8 +48,8 @@ export function EnrollButton({ course, pay, userCode, phone, rejectedNote }: {
 
   return (
     <>
-      <button type="button" onClick={open} className="btn-primary mt-6 w-full py-3!">
-        <span className="icon text-[20px]">school</span>ভর্তি হোন
+      <button type="button" onClick={open} className="btn-primary enroll-cta mb-3 w-full py-3! md:mb-6">
+        <span className="icon text-[20px]">add</span>কোর্সে ভর্তি হোন
       </button>
       {rejectedNote && <p className="mt-3 rounded-xl bg-error/10 p-3 text-xs text-error dark:text-red-300">আগের আবেদন বাতিল হয়েছিল: {rejectedNote}। ঠিক তথ্য দিয়ে আবার আবেদন করুন।</p>}
 

@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getAuth, isProfileComplete, safeNext } from "@/lib/auth";
 import { SignupFlow } from "../(auth)/signup-flow";
+// নম্বরে কোড পাঠিয়ে যাচাই (OTP ছাড়া রূপ linkPhoneWithoutOtp বন্ধ)
 import { sendLinkOtp, verifyLinkOtp } from "../(auth)/actions";
 import { ProfileForm } from "./profile-form";
 

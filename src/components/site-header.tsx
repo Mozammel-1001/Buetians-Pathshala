@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
+import { PanelLiveLink } from "./panel-live-link";
 import { getAuth, isStaff } from "@/lib/auth";
 import { ThemeToggle } from "./theme-toggle";
 import { MobileMenu } from "./mobile-menu";
@@ -30,12 +31,18 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-7 text-[15px] md:flex">
-          {NAV_LINKS.map((l) => (
-            <NavLink key={l.href} href={l.href} className="font-semibold transition-colors duration-200"
-              idleClassName="text-on-surface-variant hover:text-primary dark:text-surface-variant dark:hover:text-primary-fixed"
-              activeClassName="text-primary dark:text-primary-fixed">
-              {l.label}
-            </NavLink>
+          {NAV_LINKS.map((l, i) => (
+            <Fragment key={l.href}>
+              <NavLink href={l.href} className="font-semibold transition-colors duration-200"
+                idleClassName="text-on-surface-variant hover:text-primary dark:text-surface-variant dark:hover:text-primary-fixed"
+                activeClassName="text-primary dark:text-primary-fixed">
+                {l.label}
+              </NavLink>
+              {/* প্যানেলের পাতায় "কোর্সসমূহ" এর পরে "লাইভ ক্লাস" (ডেমোর admin/manager header এর মতো) */}
+              {i === 0 && <PanelLiveLink className="font-semibold transition-colors duration-200"
+                idleClassName="text-on-surface-variant hover:text-primary dark:text-surface-variant dark:hover:text-primary-fixed"
+                activeClassName="text-primary dark:text-primary-fixed" />}
+            </Fragment>
           ))}
         </nav>
 
@@ -67,9 +74,15 @@ async function DesktopAction() {
   return (
     <>
       {isStaff(profile) && (
-        <Link href="/admin" title={profile.role === "admin" ? "অ্যাডমিন প্যানেল" : "ম্যানেজার প্যানেল"}
+        <Link href={profile.role === "admin" ? "/admin" : "/manager"} title={profile.role === "admin" ? "অ্যাডমিন প্যানেল" : "ম্যানেজার প্যানেল"}
           className="hidden items-center justify-center rounded-full p-2 text-on-surface-variant transition-all duration-300 hover:bg-surface-container-low md:flex md:hover:scale-110 dark:text-surface-variant dark:hover:bg-inverse-surface">
           <span className="icon">admin_panel_settings</span>
+        </Link>
+      )}
+      {(profile.role === "evaluator" || profile.role === "teacher") && (
+        <Link href={profile.role === "teacher" ? "/teacher" : "/evaluator"} title={profile.role === "teacher" ? "শিক্ষক ড্যাশবোর্ড" : "খাতা মূল্যায়ন"}
+          className="hidden items-center justify-center rounded-full p-2 text-on-surface-variant transition-all duration-300 hover:bg-surface-container-low md:flex md:hover:scale-110 dark:text-surface-variant dark:hover:bg-inverse-surface">
+          <span className="icon">{profile.role === "teacher" ? "cast_for_education" : "rate_review"}</span>
         </Link>
       )}
       <Link href="/dashboard" title={`${profile.full_name} · ${profile.user_code}`} className={`hidden items-center gap-1.5 md:flex ${pill}`}>
@@ -86,7 +99,8 @@ async function MobileAction() {
   if (!profile) return <Link href={uid ? "/onboarding" : "/sign-in"} className={btn}>{uid ? "সাইন আপ শেষ করুন" : "Log In"}</Link>;
   return (
     <div className="space-y-3">
-      {isStaff(profile) && <Link href="/admin" className="block w-full rounded-full border-2 border-primary py-3 text-center font-bold text-primary dark:border-primary-fixed dark:text-primary-fixed">প্যানেল</Link>}
+      {isStaff(profile) && <Link href={profile.role === "admin" ? "/admin" : "/manager"} className="block w-full rounded-full border-2 border-primary py-3 text-center font-bold text-primary dark:border-primary-fixed dark:text-primary-fixed">প্যানেল</Link>}
+      {(profile.role === "evaluator" || profile.role === "teacher") && <Link href={profile.role === "teacher" ? "/teacher" : "/evaluator"} className="block w-full rounded-full border-2 border-primary py-3 text-center font-bold text-primary dark:border-primary-fixed dark:text-primary-fixed">{profile.role === "teacher" ? "শিক্ষক ড্যাশবোর্ড" : "খাতা মূল্যায়ন"}</Link>}
       <Link href="/dashboard" className={btn}>ড্যাশবোর্ড</Link>
     </div>
   );

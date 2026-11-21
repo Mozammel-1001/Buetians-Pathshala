@@ -261,6 +261,39 @@ async function finishSignup(supabase: SupabaseClient, uid: string, values: Signu
   return { to: withParams(next, { welcome: profile.user_code }) };
 }
 
+// ---------- OTP ছাড়া সাইন আপ (আপাতত: SMS API পাওয়া গেলে আবার startSignup → completeSignup এ ফেরা) ----------
+// secret key দিয়ে অ্যাকাউন্ট সরাসরি "নম্বর যাচাই হয়েছে" অবস্থায় খোলে (তখনই database এর trigger profile আর আইডি দেয়),
+// তারপর একই পাসওয়ার্ডে লগইন আর স্বাগত বার্তা। নম্বরটা সত্যিই তাঁর কিনা যাচাই হয় না, তাই SMS চালু হলেই এটা বন্ধ করতে হবে
+const PHONE_TAKEN = "এই নম্বরে আগেই অ্যাকাউন্ট আছে। লগইন করুন।";
+const taken = (e: { code?: string; message?: string } | null) =>
+  !!e && (e.code === "phone_exists" || e.code === "user_already_exists" || /already/i.test(e.message ?? ""));
+
+// ফোন যাচাই ছাড়া অ্যাকাউন্ট খোলে, তাই ALLOW_SIGNUP_WITHOUT_OTP=1 না থাকলে সবসময় বন্ধ (UI তে আর ব্যবহার হয় না)
+const noOtpAllowed = () => process.env.ALLOW_SIGNUP_WITHOUT_OTP === "1";
+export async function signupWithoutOtp(input: SignupInput & { next: string }): Promise<AuthResult> {
+  if (!noOtpAllowed()) return { error: "OTP ছাড়া সাইন আপ বন্ধ আছে।" };
+  const { v, phone, guardian, errors, errorStep } = validateSignup(input);
+  if (Object.keys(errors).length || !phone || !guardian) return { fieldErrors: errors, step: errorStep };
+  const admin = createAdminClient();
+  if (!admin) return { error: "সাইন আপ এখন চালু নেই। একটু পরে চেষ্টা করুন।" };
+  const { data: exists } = await admin.from("profiles").select("id").eq("phone", phone).maybeSingle();
+  if (exists) return { fieldErrors: { phone: PHONE_TAKEN }, step: 1 };
+
+  const { error } = await admin.auth.admin.createUser({ phone: e164(phone), password: v.password, phone_confirm: true, user_metadata: metadataOf(v, guardian) });
+  if (taken(error)) return { fieldErrors: { phone: PHONE_TAKEN }, step: 1 };
+  if (error?.code === "weak_password") return { fieldErrors: { password: "আরও শক্ত পাসওয়ার্ড দিন।" }, step: 1 };
+  if (error) return { error: "অ্যাকাউন্ট খোলা যায়নি: " + error.message };
+
+  const supabase = await createClient();
+  const { data, error: loginError } = await supabase.auth.signInWithPassword({ phone: e164(phone), password: v.password });
+  if (loginError || !data.user) return { error: "অ্যাকাউন্ট খোলা হয়েছে, কিন্তু লগইন হয়নি। লগইন পাতা থেকে মোবাইল নম্বর আর পাসওয়ার্ড দিয়ে ঢুকুন।" };
+  const values: SignupValues = { full_name: v.full_name, phone: v.phone, email: v.email, guardian_phone: v.guardian_phone, institute: v.institute, class_level: v.class_level };
+  const r = await finishSignup(supabase, data.user.id, values, safeNext(input.next));
+  if ("error" in r) return { error: r.error };
+  await rememberChoice(true);
+  redirect(r.to);
+}
+
 // ---------- পাসওয়ার্ড ভুলে গেলে: শুধু মোবাইল নম্বর ----------
 export async function sendResetOtp(input: { phone: string }): Promise<AuthResult> {
   const phone = normalizeBdPhone(String(input.phone ?? ""));
@@ -384,6 +417,31 @@ export async function verifyLinkOtp(prev: SignupState, formData: FormData): Prom
   if (error || !data.user) return { ...prev, fieldErrors: undefined, error: error?.code === "phone_exists" ? sendError(error) : error ? verifyError(error) : "যাচাই হয়নি" };
   const r = await finishSignup(supabase, data.user.id, prev.values, next);
   if ("error" in r) return { ...prev, error: r.error };
+  redirect(r.to);
+}
+
+// Google এর পর সাইন আপ শেষ করা, OTP ছাড়া (আপাতত; SMS এলে আবার sendLinkOtp → verifyLinkOtp):
+// নম্বরটা সরাসরি "যাচাই হয়েছে" হিসেবে বসে, তখনই database এর trigger profile আর আইডি দেয়
+export async function linkPhoneWithoutOtp(_prev: SignupState, formData: FormData): Promise<SignupState> {
+  if (process.env.ALLOW_SIGNUP_WITHOUT_OTP !== "1") return { error: "OTP ছাড়া সাইন আপ বন্ধ আছে।" } as SignupState;
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  const uid = claims?.claims?.sub;
+  if (!uid) redirect("/sign-in");
+  const googleEmail = (claims.claims.email as string) || null;
+  const next = safeNext(formData.get("next"));
+  const { values, errors, phone, guardian } = readSignup(formData, googleEmail);
+  if (Object.keys(errors ?? {}).length || !phone || !guardian) return { step: "form", values, fieldErrors: errors, error: "কয়েকটা ঘর ঠিক করতে হবে" };
+  const admin = createAdminClient();
+  if (!admin) return { step: "form", values, error: "সাইন আপ এখন চালু নেই। একটু পরে চেষ্টা করুন।" };
+  const { data: exists } = await admin.from("profiles").select("id").eq("phone", phone).maybeSingle();
+  if (exists) return { step: "form", values, exists: true, fieldErrors: { phone: "এই নম্বরে আগেই অ্যাকাউন্ট আছে" } };
+  const { data: u } = await admin.auth.admin.getUserById(uid);
+  const { error } = await admin.auth.admin.updateUserById(uid, { phone: e164(phone), phone_confirm: true, user_metadata: { ...(u?.user?.user_metadata ?? {}), ...metadataOf(values, guardian) } });
+  if (taken(error)) return { step: "form", values, exists: true, fieldErrors: { phone: "এই নম্বরে আগেই অ্যাকাউন্ট আছে" } };
+  if (error) return { step: "form", values, error: "নম্বর যুক্ত করা যায়নি: " + error.message };
+  const r = await finishSignup(supabase, uid, values, next);
+  if ("error" in r) return { step: "form", values, error: r.error };
   redirect(r.to);
 }
 

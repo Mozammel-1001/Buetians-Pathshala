@@ -90,6 +90,18 @@ export async function deleteCourse(_prev: SaveState, formData: FormData): Promis
   redirect("/admin/courses?deleted=1");
 }
 
+// কোর্সের কার্ড থেকে প্রকাশ/ড্রাফট (ডেমোর visibility_off / publish বোতাম)
+export async function setCoursePublished(_prev: SaveState, formData: FormData): Promise<SaveState> {
+  const supabase = await adminClient();
+  const id = Number(formData.get("id"));
+  const on = formData.get("published") === "1";
+  const { data, error } = await supabase.from("courses").update({ is_published: on }).eq("id", id).select("id");
+  if (isSessionReplaced(error)) redirect("/auth/replaced");
+  if (error || !data?.length) return { error: "বদলানো যায়নি" };
+  updateTag("courses");
+  return { ok: true, savedAt: Date.now() };
+}
+
 // ---------- সাইটের লেখা ----------
 export async function saveSection(_prev: SaveState, formData: FormData): Promise<SaveState> {
   const supabase = await adminClient();

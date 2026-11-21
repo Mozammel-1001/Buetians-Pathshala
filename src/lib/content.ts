@@ -41,3 +41,15 @@ export async function getPublishedCourse(slug: string): Promise<Course | null> {
   const { data } = await createPublicClient().from("courses").select(COURSE_COLUMNS).eq("slug", slug).eq("is_published", true).maybeSingle();
   return (data as unknown as Course | null) ?? null;
 }
+
+// ভর্তি বিজ্ঞপ্তি (সাইটের "ভর্তি পরীক্ষার বিজ্ঞপ্তি" পাতা): সবার জন্য একই, cache এ; অ্যাডমিন বদলালে updateTag("circulars")
+export type Circular = { id: number; institution: string; title: string; body: string | null; apply_url: string | null; deadline: string | null; published_at: string };
+export async function getCirculars(): Promise<Circular[] | null> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("circulars");
+  if (!hasSupabase()) return null;
+  const { data, error } = await createPublicClient().from("admission_circulars")
+    .select("id, institution, title, body, apply_url, deadline, published_at").order("deadline", { ascending: true, nullsFirst: false }).order("id", { ascending: false });
+  return error ? null : (data as Circular[]);
+}

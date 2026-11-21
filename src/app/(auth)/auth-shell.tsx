@@ -4,8 +4,9 @@ import { startTransition, useEffect, useState, useTransition, type FormEvent, ty
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { CLASS_LEVELS, cleanOtp, isEmail, normalizeBdPhone, normalizeUserCode, PASSWORD_MIN } from "@/lib/validation";
+// OTP ছাড়া সাইন আপ (signupWithoutOtp) বন্ধ; SMS ছাড়া চালাতে হলে actions.ts এ ALLOW_SIGNUP_WITHOUT_OTP দেখুন
 import {
-  completeSignup, passwordLogin, resendSignupOtp, sendResetOtp, setNewPassword, signInWithGoogle, startSignup, verifyResetOtp,
+  completeSignup, passwordLogin, resendSignupOtp, sendResetOtp, setNewPassword, signInWithGoogle, startSignup, /* signupWithoutOtp, */ verifyResetOtp,
   type AuthResult, type SignupInput,
 } from "./actions";
 import { GoogleLogo } from "./google-button";
@@ -241,7 +242,8 @@ function ForgotView({ next, go }: { next: string; go: (v: AuthView) => void }) {
   );
 }
 
-// ---------- সাইন আপ: তিন ধাপ ----------
+// ---------- সাইন আপ: তিন ধাপ (শেষে মোবাইলের OTP) ----------
+// OTP ছাড়া দুই ধাপের রূপ (signupWithoutOtp) comment করে রাখা আছে, নিচে "[NO-OTP]" চিহ্নে
 const EMPTY = { full_name: "", email: "", phone: "", password: "", confirm: "", guardian_phone: "", institute: "", class_level: "" };
 
 function SignupView({ next, go }: { next: string; go: (v: AuthView) => void }) {
@@ -288,7 +290,7 @@ function SignupView({ next, go }: { next: string; go: (v: AuthView) => void }) {
       const e = checkStep2();
       setErrors(e);
       if (Object.keys(e).length) return;
-      // "পরবর্তী": সব তথ্য সার্ভারে যাচাই হয়ে অ্যাকাউন্ট খোলে আর মোবাইলে OTP যায়
+      // "পরবর্তী": সব তথ্য সার্ভারে যাচাই, মোবাইলে কোড যায়, তারপর ধাপ ৩
       start(async () => {
         const r = await startSignup(input());
         if (r.fieldErrors) { setErrors(r.fieldErrors); if (r.step) setStep(r.step); }
@@ -297,6 +299,7 @@ function SignupView({ next, go }: { next: string; go: (v: AuthView) => void }) {
       });
     } else {
       if (cleanOtp(code).length !== 6) { setErrors({ code: "অনুগ্রহ করে সঠিক ৬-ডিজিটের কোড দিন।" }); return; }
+      // কোড মিললে অ্যাকাউন্ট চালু, লগইন আর আইডিসহ স্বাগত বার্তা
       start(async () => {
         const r = await completeSignup({
           phone: v.phone, code, next,
@@ -307,6 +310,13 @@ function SignupView({ next, go }: { next: string; go: (v: AuthView) => void }) {
       });
     }
   };
+  /* [NO-OTP] OTP ছাড়া দুই ধাপের রূপ (SMS না থাকলে), ধাপ ২ এর শেষে:
+      start(async () => {
+        const r = await signupWithoutOtp({ ...input(), next });
+        if (r?.fieldErrors) { setErrors(r.fieldErrors); if (r.step) setStep(r.step); }
+        if (r?.error) setFormError(r.error);
+      });
+    ধাপ "/২", percent 50/100 করতে হবে, আর actions.ts এ ALLOW_SIGNUP_WITHOUT_OTP=1 লাগে */
 
   const resend = () => {
     if (remaining > 0 || resends >= RESEND_MAX || pending) return;
@@ -354,7 +364,7 @@ function SignupView({ next, go }: { next: string; go: (v: AuthView) => void }) {
             </div>
             <div className="form-actions-row">
               <button type="button" className="btn-back" onClick={() => { setErrors({}); setFormError(""); setStep(1); }}>পেছনে</button>
-              <button type="submit" className="login-submit-btn" style={{ flex: 2 }} disabled={pending}>{pending ? "OTP পাঠানো হচ্ছে…" : "পরবর্তী"}</button>
+              <button type="submit" className="login-submit-btn" style={{ flex: 2 }} disabled={pending}>{pending ? "কোড পাঠানো হচ্ছে…" : "পরবর্তী"}</button>
             </div>
           </>
         )}

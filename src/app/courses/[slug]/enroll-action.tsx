@@ -14,8 +14,8 @@ export async function EnrollAction({ course }: { course: Course }) {
   const { uid, profile } = await getAuth();
   if (!uid || !profile) {
     return (
-      <div className="mt-6 space-y-2">
-        <Link href={`/sign-in?next=${encodeURIComponent(back)}`} className="btn-primary w-full py-3!"><span className="icon text-[20px]">school</span>ভর্তি হোন</Link>
+      <div className="mb-3 md:mb-6 space-y-2">
+        <Link href={`/sign-in?next=${encodeURIComponent(back)}`} className="btn-primary enroll-cta w-full py-3!"><span className="icon text-[20px]">add</span>কোর্সে ভর্তি হোন</Link>
         <p className="text-center text-xs muted">
           ভর্তির আগে লগইন লাগবে। নতুন? <Link href={`/sign-up?next=${encodeURIComponent(back)}`} className="font-bold text-primary dark:text-primary-fixed">সাইন আপ করুন</Link>
         </p>
@@ -34,18 +34,18 @@ export async function EnrollAction({ course }: { course: Course }) {
 
   if (active) {
     return (
-      <div className="mt-6 rounded-2xl bg-primary/10 p-4 text-sm">
+      <div className="mb-3 md:mb-6 rounded-2xl bg-primary/10 p-4 text-sm">
         <p className="flex items-center gap-2 font-bold text-primary dark:text-primary-fixed"><span className="icon">task_alt</span>আপনি এই কোর্সে ভর্তি আছেন</p>
         <Link href="/dashboard" className="btn-primary mt-3 w-full">ড্যাশবোর্ডে যান</Link>
       </div>
     );
   }
   if (enr?.status === "revoked") {
-    return <p className="mt-6 rounded-2xl bg-error/10 p-4 text-sm text-error dark:text-red-300">এই কোর্সে আপনার ভর্তি বাতিল করা আছে। বিস্তারিত জানতে আমাদের সাথে যোগাযোগ করুন।</p>;
+    return <p className="mb-3 md:mb-6 rounded-2xl bg-error/10 p-4 text-sm text-error dark:text-red-300">এই কোর্সে আপনার ভর্তি বাতিল করা আছে। বিস্তারিত জানতে আমাদের সাথে যোগাযোগ করুন।</p>;
   }
   if (last?.status === "pending") {
     return (
-      <div className="mt-6 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900 dark:bg-amber-900/20 dark:text-amber-100" data-testid="enroll-pending">
+      <div className="mb-3 md:mb-6 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900 dark:bg-amber-900/20 dark:text-amber-100" data-testid="enroll-pending">
         <p className="flex items-center gap-2 font-bold"><span className="icon">hourglass_top</span>আবেদন যাচাইয়ের অপেক্ষায়</p>
         <p className="mt-1">TrxID <span className="font-mono font-bold">{last.trx_id}</span>। {content.payment.review_time || "শীঘ্রই যাচাই হবে।"}</p>
       </div>
@@ -55,7 +55,7 @@ export async function EnrollAction({ course }: { course: Course }) {
     return (
       <form action={enrollFree}>
         <input type="hidden" name="course_id" value={course.id} />
-        <button type="submit" className="btn-primary mt-6 w-full py-3!"><span className="icon text-[20px]">school</span>ফ্রি ভর্তি হোন</button>
+        <button type="submit" className="btn-primary enroll-cta w-full py-3!"><span className="icon text-[20px]">school</span>ফ্রি ভর্তি হোন</button>
       </form>
     );
   }
